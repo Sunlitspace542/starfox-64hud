@@ -20,7 +20,7 @@ twentyonemhz		equ 1	; SuperFX 21MHZ Fast mode [0 = off 1 = on]												#
 planetcheaton 		equ 0   ; Allows you to enable planet select cheat on the map before you have selected			#
 							; a level. Press X+Y on the same frame to activate.										#
 messagetest			equ	0	; Run message test in training level													#
-crosshairalwayson	equ	0	; Crosshair in third person view [0 = off 1 = on]										#
+crosshairalwayson	equ	1	; Crosshair in third person view [0 = off 1 = on]										#
 hipolyarwing		equ	0	; high poly arwing [0 = low poly (default) 1 = hi poly]									#
 wnglzrman_helpball	equ	0 	; Restore Laser Upgrade enemy code to spawn helperball items							#
 							; instead of laser upgrades	[0 = off 1 = on]											#
