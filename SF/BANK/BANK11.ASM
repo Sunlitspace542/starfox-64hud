@@ -20,6 +20,11 @@
 	incfile	ASM\STRAT\gb2strats.asm
 	bankend 40
 
+	public	bgm11
+	public	bgm11len
+bgm11	incbinfile	snd\sgbgm11.bin
+bgm11len	equ	*-bgm11
+
 	include	INC\tail.inc
 
 

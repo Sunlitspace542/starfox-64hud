@@ -604,6 +604,19 @@ s_set_bossmaxHP	MACRO	[value,alvar]
 	
 	ENDC
 
+	lda.l	m_bossmaxHP
+	cmp	#128
+	bpl	.setto127\@
+
+	sta.l	m_bossmaxHP
+	bra	.done\@
+.setto127\@
+	lda	#127
+	sta.l	m_bossmaxHP
+	
+.done\@
+
+
 	lda	#0
 	sta.l	m_bossHP
 
@@ -670,7 +683,15 @@ s_add_bossHP	macro
 	ENDC
 	ENDC
 
+	cmp	#128
+	bpl	.setto127\@
 	sta.l	m_bossHP
+	bra	.done\@
+.setto127\@
+	lda	#127
+	sta.l	m_bossHP
+	
+.done\@
 
 	stratmac_end
 
@@ -734,6 +755,7 @@ s_add_bossmaxHP	macro
 	sta.l	m_bossmaxHP
 	
 .done\@
+
 	stratmac_end
 
 	endm
