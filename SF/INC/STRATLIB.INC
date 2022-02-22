@@ -724,8 +724,16 @@ s_add_bossmaxHP	macro
 	ENDC
 	ENDC
 
-	sta.l	m_bossmaxHP
+	cmp	#128
+	bpl	.setto127\@
 
+	sta.l	m_bossmaxHP
+	bra	.done\@
+.setto127\@
+	lda	#127
+	sta.l	m_bossmaxHP
+	
+.done\@
 	stratmac_end
 
 	endm
