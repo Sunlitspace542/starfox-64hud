@@ -12,7 +12,12 @@ copy_to_0101_l
 	bpl	.codeloop2
 
 	ldx	#xlen-1
-.codeloop4	lda.l	$28000,x
+.codeloop4	
+	IFNE	fastrom
+	lda.l	$828000,x
+	elseif
+	lda.l	$28000,x
+	endc
 	sta.l	xroutines,x
 	dex
 	bpl	.codeloop4
@@ -38,9 +43,15 @@ nmihan
 	phx
 	phy
 	ai8
+	IFNE	FASTROM
 	lda	#$80
 	pha
 	plb
+	ELSEIF
+	lda	#0
+	pha
+	plb
+	ENDC
 
 	nastyon
 	jsl	irqcode_l
@@ -59,9 +70,15 @@ nmihan
 	phx
 	phy
 	a8
+	IFNE	FASTROM
 	lda	#$80
 	pha
 	plb
+	ELSEIF
+	lda	#0
+	pha
+	plb
+	ENDC
 
 	nastyoff
 	jsl	fnmi_l

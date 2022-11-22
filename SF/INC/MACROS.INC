@@ -3903,11 +3903,7 @@ dmabitmap macro
 ;------------------------------------------------------------------------
 
 blink	macro
-	IFNE	debuginfo2
 	jsl	doblink\1
-	ELSEIF
-	jml	restart
-	ENDC
 	endm
 
 ;------------------------------------------------------------------------
@@ -4369,11 +4365,19 @@ bankend	macro
 	ENDC
 
 
+	IFNE	FASTROM
 ;	IFEQ	\1
 ;bank\1left	=	65536-*
 ;	ELSEIF
 bank\1left	=	32768-(*-((\1*$10000)+$808000))
 ;	ENDC
+	ELSEIF
+	IFEQ	\1
+bank\1left	=	65536-*
+	ELSEIF
+bank\1left	=	32768-(*-((\1*$10000)+$8000))
+	ENDC
+	ENDC
 
 	IFND	totalromspaceleft
 totalromspaceleft	=	0
@@ -4415,7 +4419,11 @@ bank	macro
 
 	printf	"%01-- BANK \1:%00%n"
 
+	IFNE	FASTROM
 	org	((\1)*$10000)+$808000,$8000*(\1)
+	ELSEIF
+	org	((\1)*$10000)+$8000,$8000*(\1)
+	ENDC
 
 banknum	=	\1
 Assembling_bank	=	\1
@@ -5946,7 +5954,11 @@ rompos	=	(firstsndbnk*$8000)+musicsize
 sndbank	=	(rompos/$8000)
 sndoffset	=	rompos-(sndbank*$8000)
 
+	IFNE	FASTROM
 	org	sndbank*$10000+$808000+sndoffset,rompos
+	ELSEIF
+	org	sndbank*$10000+$8000+sndoffset,rompos	
+	ENDC
 
 
 \1	incbin	\2
