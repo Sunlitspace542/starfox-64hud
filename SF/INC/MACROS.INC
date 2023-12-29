@@ -2811,64 +2811,64 @@ stupt	=	stupt+\2
 
 
 ;------------------------------------------------------------------------
-
-a8	macro
+; TODO: make sure the comments are correct
+a8	macro ; set A to 8 bit
 	shorta
 	sep	#p_a
 	endm
 
 ;------------------------------------------------------------------------
 
-i8	macro
+i8	macro ; Set X/Y to 8 bit
 	shorti
 	sep	#p_x
 	endm
 
 ;------------------------------------------------------------------------
 
-a16	macro
+a16	macro ; set A to 16 bit
 	longa
 	rep	#p_a
 	endm
 
 ;------------------------------------------------------------------------
 
-i16	macro
+i16	macro ; Set X/Y to 16 bit
 	longi
 	rep	#p_x
 	endm
 
 ;------------------------------------------------------------------------
 
-a8sec	macro
+a8sec	macro ; set A to 8 bit and carry flag
 	shorta
 	sep	#p_a+p_c
 	endm
 
 ;------------------------------------------------------------------------
 
-i8sec	macro
+i8sec	macro ; Sets X/Y to 16 bit and sets carry flag
 	shorti
 	sep	#p_x+p_c
 	endm
 
 ;------------------------------------------------------------------------
 
-a16clc	macro
+a16clc	macro ; sets A to 16 bit and clears carry flag
 	longa
 	rep	#p_a+p_c
 	endm
 
 ;------------------------------------------------------------------------
 
-i16clc	macro
+i16clc	macro ; Sets X/Y to 16 bit and clears carry flag
 	longi
 	rep	#p_x+p_c
 	endm
 
 ;------------------------------------------------------------------------
 
-ai16	macro
+ai16	macro ;  sets A/X/Y to 16 bit
 	longa
 	longi
 	rep	#p_a+p_x
@@ -2876,7 +2876,7 @@ ai16	macro
 
 ;------------------------------------------------------------------------
 
-ai8	macro
+ai8	macro ;  sets A/X/Y to 8 bit
 	shorta
 	shorti
 	sep	#p_a+p_x
@@ -2884,7 +2884,7 @@ ai8	macro
 
 ;------------------------------------------------------------------------
 
-ai16clc	macro
+ai16clc	macro ; sets A/X/Y to 16 bit, and carry flags
 	longa
 	longi
 	rep	#p_a+p_x+p_c
@@ -2892,7 +2892,7 @@ ai16clc	macro
 
 ;------------------------------------------------------------------------
 
-ai8sec	macro
+ai8sec	macro ; sets A/X/Y to 8 bit, and sets carry flag
 	shorta
 	shorti
 	sep	#p_a+p_x+p_c
@@ -2900,7 +2900,7 @@ ai8sec	macro
 
 ;------------------------------------------------------------------------
 
-a8i16	macro
+a8i16	macro ; sets A to 8 bit and X/Y to 16 bit
 	shorta
 	longi
 	sep	#p_a
@@ -2909,7 +2909,7 @@ a8i16	macro
 
 ;------------------------------------------------------------------------
 
-a16i8	macro
+a16i8	macro ; sets A to 16 bit and X/Y to 8 bit
 	shorti
 	longa
 	sep	#p_x
@@ -2918,7 +2918,7 @@ a16i8	macro
 
 ;------------------------------------------------------------------------
 
-a8i16clc	macro
+a8i16clc	macro ; sets A to 8 bit, and clears carry flag
 	shorta
 	longi
 	sep	#p_a
@@ -2927,7 +2927,7 @@ a8i16clc	macro
 
 ;------------------------------------------------------------------------
 
-a16i8clc	macro
+a16i8clc	macro ; sets A to 16 bit and clears carry flag
 	shorti
 	longa
 	sep	#p_x
@@ -2936,7 +2936,7 @@ a16i8clc	macro
 
 ;------------------------------------------------------------------------
 
-a8i16sec	macro
+a8i16sec	macro ; sets A to 8 bit and sets carry flag
 	shorta
 	longi
 	sep	#p_a+p_c
@@ -2945,7 +2945,7 @@ a8i16sec	macro
 
 ;------------------------------------------------------------------------
 
-a16i8sec	macro
+a16i8sec	macro ; set A to 16 bit and sets carry flag
 	shorti
 	longa
 	sep	#p_x+p_c
@@ -3901,11 +3901,10 @@ dmabitmap macro
 	endm
 
 ;------------------------------------------------------------------------
-
-blink	macro
-	jsl	doblink\1
+; Syntax: blink (value)
+blink	macro ; run crash handler
+	jsl	doblink\1 ; Jump to BLINK routine
 	endm
-
 ;------------------------------------------------------------------------
 
 blinkcount	macro
@@ -4257,7 +4256,6 @@ deccgram	macro
 	endm
 
 ;------------------------------------------------------------------------
-
 inccru	macro
 	incbin	\2
 \1
@@ -4265,36 +4263,7 @@ inccru	macro
 \3
 	endc
 
-	fileslog	\2
-
 	endm
-
-fileslog	MACRO
-	IFNE	filelist
-	IFND	makefile
-	fopen	+files.log
-	printf	"\1%n"
-	fclose
-	ELSEIF
-	IFND	fileslogcount
-fileslogcount =	0
-	ENDC
-
-	fopen	+files.log
-	printf	"\1 "
-
-fileslogcount	=	fileslogcount+1
-
-	IFEQ	fileslogcount-4
-	printf	"\\%n"
-fileslogcount	=	0
-	ENDC
-	fclose
-
-	ENDC
-	ENDC
-	ENDM
-
 ;------------------------------------------------------------------------
 
 decclear	macro
@@ -4440,52 +4409,48 @@ Assembling_bank	=	\1
 
 ;--- Mario Nasty mode macros -------------
 nastyon	macro
-;	php
-;	sei
-	lda	mario_draw_mode
-	ora	#mm_ramn+mm_romn
-;	sta	mario_draw_mode
- 	sta	mio_mode
-;	plp
+	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
+	ora	#mm_ramn+mm_romn ; OR A With RAM nasty flag + ROM nasty flag (8+16)
+ 	sta	mio_mode ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
 
 ramnastyon	macro
-	lda	mario_draw_mode
-	ora	#mm_ramn
- 	sta	mio_mode
+	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
+	ora	#mm_ramn ; OR A with RAM nasty flag (8)
+ 	sta	mio_mode ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
 
 romnastyon	macro
-	lda	mario_draw_mode
-	ora	#mm_romn
- 	sta	mio_mode
+	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
+	ora	#mm_romn ; OR A with ROM nasty flag (16)
+ 	sta	mio_mode ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
 
 nastyoff	macro
-	lda	mario_draw_mode
- 	sta	mio_mode
+	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
+ 	sta	mio_mode ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
 
 ramnastyoff	macro
-	lda	mario_draw_mode
-	and	#~mm_ramn
- 	sta	mio_mode
+	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
+	and	#~mm_ramn ; AND A with RAM nasty flag (8)
+ 	sta	mio_mode ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
 
 romnastyoff	macro
-	lda	mario_draw_mode
-	and	#mm_romn
- 	sta	mio_mode
+	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
+	and	#mm_romn ; AND A with ROM nasty flag (16)
+ 	sta	mio_mode ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
@@ -4781,10 +4746,6 @@ printroulen	MACRO	label name,[comment]
 	progress_off
 	Sprintroulen	\1,<\2>
 
-	fopen	+status.doc
-	Sprintroulen	\1,<\2>
-	fclose
-
 	progress_on
 
 	ENDM
@@ -4859,369 +4820,6 @@ nomore	=	0
 
 ;------------------------------------------------------------------------
 strats_report	MACRO
-
-	fclose
-	ansi_on
-	header	<--------------------------- MAKING STRATEGY REPORT ----------------------------%n>
-	ansi_off
-	fopen	+status.doc
-
-
-	printf	"------------------------------ STRATEGY REPORT --------------------------------"
-	printf	"%n%n%n"
-
-	printf	"| NAME                  |   Used   |   Size   %n"
-	printf	"-------------------------------------------------------------------------------%n"
-       	
-donomore	=	0
-donomore2	=	0
-passnum	=	0
-numpasses	=	400
-
-	REPT	numpasses
-currmax	=	0
-nomore	=	1
-	
-	fclose
-	ansi_on
-	progress	passnum,numpasses-1
-	ansi_off
-	fopen	+status.doc
-
-	IFEQ	donomore2
-	stratmacsort	s_make_obj		
-	stratmacsort	s_set_strat		
-	stratmacsort	s_set_collstrat	
-	stratmacsort	s_set_endcollstrat	
-	stratmacsort	s_set_expstrat		
-	stratmacsort	s_set_aldata		
-	stratmacsort	s_set_alptrs		
-	stratmacsort	s_set_nmistrat		
-	stratmacsort	s_goto_obj		
-	stratmacsort	s_goto_WP		
-	stratmacsort	s_set_WP		
-	stratmacsort	s_set_dist		
-	stratmacsort	s_kill_obj		
-	stratmacsort	s_setnoremove_behind	
-	stratmacsort	s_setremove_behind	
-	stratmacsort	s_remove_offscn	
-	stratmacsort	s_remove_obj		
-	stratmacsort	s_remove_fire		
-	stratmacsort	s_circle_obj		
-	stratmacsort	s_carry_obj		
-	stratmacsort	s_damagesmoke		
-	stratmacsort	s_damagefire		
-	stratmacsort	s_set_find		
-	stratmacsort	s_find_nearobj		
-	stratmacsort	s_find_radiusobj	
-	stratmacsort	s_find_obj		
-	stratmacsort	s_find_Mobj		
-	stratmacsort	s_rots_flat		
-	stratmacsort	s_chk_objptr		
-	stratmacsort	s_weapon_pos		
-	stratmacsort	s_weapon_rot		
-	stratmacsort	s_weapon_rots2obj 	
-	stratmacsort	s_weapon_Yrot2obj 	
-	stratmacsort	s_fire_weapon		
-	stratmacsort	s_fire_Yweapon		
-	stratmacsort	s_make_immune		
-	stratmacsort	s_Initface_player	
-	stratmacsort	s_face_player		
-	stratmacsort	s_exg_objs		
-	stratmacsort	s_start_strat
-	stratmacsort	s_start_collstrat
-	stratmacsort	s_start_nmistrat
-	stratmacsort	s_end_strat
-	stratmacsort	s_end_nmistrat
-	stratmacsort	s_end_collstrat	
-	stratmacsort	s_DIScolls		
-	stratmacsort	s_ENAcolls		
-	stratmacsort	s_docoll		
-	stratmacsort	s_docollAP		
-	stratmacsort	s_obj2collide		
-	stratmacsort	s_hardvars		
-	stratmacsort	s_playerctrl		
-
-	stratmacsort	s_set_alvartobeobj	
-	stratmacsort	s_set_vartobeobj	
-	stratmacsort	s_set_objtobealvar	
-	stratmacsort	s_set_objtobevar	
-	stratmacsort	s_set_objtobeplayer	
-
-	stratmacsort	s_copy_obj		
-	stratmacsort	s_copy_var2var		
-	stratmacsort	s_copy_var2alvar	
-	stratmacsort	s_copy_var2alxvar	
-	stratmacsort	s_copy_alvar2var	
-	stratmacsort	s_copy_alxvar2var	
-	stratmacsort	s_copy_alvar2alvar	
-	stratmacsort	s_copy_alvar2alxvar	
-	stratmacsort	s_Achase_alvar		
-	stratmacsort	s_Achase_2alvars	
-	stratmacsort	s_Achase_var2alvar	
-	stratmacsort	s_Achase_alvar2alvar	
-	stratmacsort	s_Achase_var		
-	stratmacsort	s_Fchase_alvar		
-	stratmacsort	s_Fchase_var2alvar	
-	stratmacsort	s_Fchase_alvar2alvar	
-	stratmacsort	s_Fchase_var		
-	stratmacsort	s_neg_alvar		
-	stratmacsort	s_set_alvar		
-	stratmacsort	s_set_alvar2rnd	
-	stratmacsort	s_add_rnd2alvar	
-	stratmacsort	s_add_rnd2var		
-	stratmacsort	s_add_alvar		
-	stratmacsort	s_varadd_alvar		
-	stratmacsort	s_sub_alvar		
-	stratmacsort	s_varsub_alvar		
-	stratmacsort	s_dec_alvar		
-	stratmacsort	s_inc_alvar		
-	stratmacsort	s_neg_alvar		
-	stratmacsort	s_set_var		
-	stratmacsort	s_set_var2rnd		
-	stratmacsort	s_add_var		
-	stratmacsort	s_sub_var		
-	stratmacsort	s_dec_var		
-	stratmacsort	s_inc_var		
-	stratmacsort	s_neg_var		
-	stratmacsort	s_add_alvars		
-	stratmacsort	s_sub_alvars		
-	stratmacsort	s_cmp_alvars		
-	stratmacsort	s_cmp_alvar		
-	stratmacsort	s_cmp_var		
-	stratmacsort	s_set_alvar2alvartab	
-	stratmacsort	s_set_alvar2vartab	
-	stratmacsort	s_set_var2alvartab	
-	stratmacsort	s_set_var2vartab	
-	stratmacsort	s_set_3vars		
-
-	stratmacsort	s_set_lifecnt		
-	stratmacsort	s_dec_lifecnt		
-	stratmacsort	s_decbpl_lifecnt	
-	stratmacsort	s_set_altype		
-	stratmacsort	s_set_alflag		
-	stratmacsort	s_set_alsflag		
-	stratmacsort	s_set_flag		
-	stratmacsort	s_clr_flag		
-	stratmacsort	s_test_flag		
-	stratmacsort	s_test_var		
-	stratmacsort	s_or_var		
-	stratmacsort	s_and_var		
-	stratmacsort	s_or_alvar		
-	stratmacsort	s_and_alvar		
-	stratmacsort	s_set_alcollflag	
-	stratmacsort	s_clr_atype		
-	stratmacsort	s_not_alflag		
-	stratmacsort	s_clr_alflag		
-	stratmacsort	s_clr_alsflag		
-	stratmacsort	s_clr_alcollflag	
-	stratmacsort	s_set_colltype		
-	stratmacsort	s_not_alsflag		
-	stratmacsort	s_limit_alvar		
-	stratmacsort	s_limit_var		
-	stratmacsort	s_set_state		
-	stratmacsort	s_next_state		
-
-	stratmacsort	s_push_obj		
-	stratmacsort	s_pull_obj		
-	stratmacsort	s_push_alvar		
-	stratmacsort	s_pull_alvar		
-
-	stratmacsort	s_set_speed		
-	stratmacsort	s_add_speed		
-	stratmacsort	s_sub_speed		
-	stratmacsort	s_speedto		
-	stratmacsort	s_zero_vecs		
-	stratmacsort	s_zero_2dvecs		
-	stratmacsort	s_zero_rots		
-	stratmacsort	s_zero_pos		
-	stratmacsort	s_scale_vecs		
-	stratmacsort	s_gen_vecs		
-	stratmacsort	s_gen_Zvec		
-	stratmacsort	s_gen_flatvecs		
-	stratmacsort	s_addgen_vecs		
-	stratmacsort	s_addgen_3Dvecs	
-	stratmacsort	s_gen_3Dvecs		
-	stratmacsort	s_scale_vec		
-	stratmacsort	s_add_2pos		
-	stratmacsort	s_add_vecs2pos		
-	stratmacsort	s_add_vecs2vecs	
-	stratmacsort	s_set_pos		
-	stratmacsort	s_set_vecs		
-	stratmacsort	s_set_vec		
-	stratmacsort	s_add_2Yvec		
-	stratmacsort	s_copy_pos		
-	stratmacsort	s_copy_pos2WP		
-	stratmacsort	s_copy_vecs		
-	stratmacsort	s_copy_rots		
-	stratmacsort	s_objrel_vecs		
-	stratmacsort	s_objrel_3vecs		
-	stratmacsort	s_obj2obj_angle	
-	stratmacsort	s_obj2obj_3Dangle 	
-	stratmacsort	s_obj2WP_angle		
-	stratmacsort	s_move_obj		
-	stratmacsort	s_move3D_obj		
-	stratmacsort	s_add_viewheight	
-	stratmacsort	s_sub_viewheight	
-	stratmacsort	s_add_cheight		
-	stratmacsort	s_sub_cheight		
-	stratmacsort	s_copy_vheight2var	
-	stratmacsort	s_falldown_Yvec	
-	stratmacsort	s_add_Roffs2pos	
-	stratmacsort	s_add_playerZ		
-
-	stratmacsort	s_inrng_strat		
-	stratmacsort	s_inview_strat		
-	stratmacsort	s_leftview_strat	
-	stratmacsort	s_rightview_strat	
-	stratmacsort	s_player_strat		
-
-	stratmacsort	s_jmp		
-	stratmacsort	s_jsr		
-	stratmacsort	s_jsl		
-	stratmacsort	s_ldajsl		
-	stratmacsort	s_rtl		
-	stratmacsort	s_jmp_onfire		
-	stratmacsort	s_jmpNOT_onfire	
-	stratmacsort	s_jmpto_strat		
-	stratmacsort	s_do_strat		
-	stratmacsort	s_jmpto_collstrat	
-	stratmacsort	s_jmpto_expstrat 	
-	stratmacsort	s_jmp_higher		
-	stratmacsort	s_jmp_objhigher	
-	stratmacsort	s_jmp_lower		
-	stratmacsort	s_jmp_objlower		
-	stratmacsort	s_jmp_Hdistmore	
-	stratmacsort	s_jmp_Hdistless	
-	stratmacsort	s_jmp_distmore		
-	stratmacsort	s_jmp_distless		
-	stratmacsort	s_jmp_XYdistmore	
-	stratmacsort	s_jmp_XYdistless	
-	stratmacsort	s_jmp_outXYdistrng	
-	stratmacsort	s_jmp_objinfront	
-	stratmacsort	s_jmp_Zdistmore	
-	stratmacsort	s_jmp_Zdistless	
-	stratmacsort	s_jmp_outXdistrng	
-	stratmacsort	s_jmp_outYdistrng	
-	stratmacsort	s_jmp_outZdistrng	
-	stratmacsort	s_jmp_Xdistmore	
-	stratmacsort	s_jmp_Xdistless	
-	stratmacsort	s_jmp_WPdistmore	
-	stratmacsort	s_jmp_WPdistless	
-	stratmacsort	s_jmp_lifemore		
-	stratmacsort	s_jmp_lifeless		
-	stratmacsort	s_jmp_ifdelay		
-	stratmacsort	s_jmp_notdelay		
-	stratmacsort	s_jmp_ANDframe		
-	stratmacsort	s_jmp_notANDframe	
-	stratmacsort	s_jmp_alvarAND		
-	stratmacsort	s_jmpNOT_alvarAND	
-	stratmacsort	s_jmp_varAND		
-	stratmacsort	s_jmpNOT_varAND	
-	stratmacsort	s_jmp_alvarmore	
-	stratmacsort	s_jmp_alvarmoreEQ	
-	stratmacsort	s_jmp_alvarless	
-	stratmacsort	s_jmp_alvarlesseq	
-	stratmacsort	s_jmp_alvarpl		
-	stratmacsort	s_jmp_alvarmi		
-	stratmacsort	s_jmp_alvareq		
-	stratmacsort	s_jmp_alvarzero	
-	stratmacsort	s_jmp_alvarNOTzero	
-	stratmacsort	s_jmp_varzero		
-	stratmacsort	s_jmp_varNOTzero	
-	stratmacsort	s_jmp_alvarne		
-	stratmacsort	s_jmp_varne		
-	stratmacsort	s_jmp_vareq		
-	stratmacsort	s_jmp_varmoreEQ	
-	stratmacsort	s_jmp_varmore		
-	stratmacsort	s_jmp_varless		
-	stratmacsort	s_jmp_alvarOUTLIMIT	
-	stratmacsort	s_jmp_alvarINLIMIT	
-	stratmacsort	s_beqdec_alvar		
-	stratmacsort	s_decbeq_alvar		
-	stratmacsort	s_decbne_alvar		
-	stratmacsort	s_decbpl_alvar		
-	stratmacsort	s_beqdec_var		
-	stratmacsort	s_jmp_altype		
-	stratmacsort	s_jmp_alflag		
-	stratmacsort	s_jmpNOT_alflag	
-	stratmacsort	s_jmp_alsflag		
-	stratmacsort	s_jmpNOT_alsflag	
-	stratmacsort	s_jmp_alcollflag	
-	stratmacsort	s_jmpNOT_alcollflag	
-	stratmacsort	s_jmp_colltype		
-	stratmacsort	s_jmpNOT_colltype	
-	stratmacsort	s_jmp_random		
-	stratmacsort	s_jmp_objplayer	
-	stratmacsort	s_jmp_objNOTplayer	
-	stratmacsort	s_jmp_keydown		
-	stratmacsort	s_jmp_keyup		
-	stratmacsort	s_jmp_anyJkeydown	
-	stratmacsort	s_jmp_anyJkeyup	
-	stratmacsort	s_jmp_IFstate		
-	stratmacsort	s_jmp_IFNOTstate 	
-	stratmacsort	s_jmp_leftofview	
-	stratmacsort	s_jmp_rightofview	
-	stratmacsort	s_jmp_objpointnegZ	
-	stratmacsort	s_jmp_objpointposZ	
-	stratmacsort	s_bra		
-	stratmacsort	s_beq		
-	stratmacsort	s_bne		
-	stratmacsort	s_bpl		
-	stratmacsort	s_bmi		
-	stratmacsort	s_bcc		
-	stratmacsort	s_bcs		
-	stratmacsort	s_bcs		
-
-	stratmacsort	s_make_mother		
-	stratmacsort	s_make_child		
-	stratmacsort	s_set_objtobechild	
-	stratmacsort	s_set_objtobemother	
-	stratmacsort	s_remove_child		
-	stratmacsort	s_make_childobjpos	
-	stratmacsort	s_make_childobj	
-	stratmacsort	s_count_childs		
-
-	stratmacsort	s_chkcoll		
-	stratmacsort	s_collpos_save		
-	stratmacsort	s_playerfly_mode	
-
-	stratmacsort	s_implode	
-	stratmacsort	s_bemother	
-	stratmacsort	s_initanim	
-	stratmacsort	s_initcolanim	
-	stratmacsort	s_add_colanim	
-	stratmacsort	s_add_anim	
-	stratmacsort	s_cmp_anim	
-	stratmacsort	s_cmp_colanim	
-	stratmacsort	s_test_hitflags
-	stratmacsort	s_clr_hitflags	
-
-
-
-
-	IFNE	donomore
-donomore2	=	1
-	ENDC
-
-	IFNE	nomore
-donomore	=	1
-	ELSEIF
-	Rprintstratmacdat	
-	ENDC
-
-	ENDC
-
-passnum	=	passnum+1
-	ENDR
-
-
-	printf	"%n"
-
-	fclose
-	del_line
-	fopen	+status.doc
-	
 
 	ENDM
 
@@ -5532,7 +5130,6 @@ totalfiles	=	totalfiles+1
 	progress	totalfiles,oldtotalfiles,<\1>
 	ENDC
 	include	\1
-	fileslog	\1
 	ENDM
 
 ;------------------------------------------------------------------------
@@ -5966,8 +5563,6 @@ sndoffset	=	rompos-(sndbank*$8000)
 
 musicsize	=	musicsize+\1len
 
-	fileslog	\2
-
 	ENDM
 
 ;-------------------------------------------------------------------
@@ -5975,45 +5570,38 @@ bgm	MACRO			;DNLDS THE BGM AND SET
 	IFNE	LONGA
 	printf	"%m requires SHORTA%n"
 	ENDC
-	jsl	do_bgm_\1		;PORT 0
+	jsl	do_bgm_\1
 	ENDM
-
 ;-------------------------------------------------------------------
 startbgm	MACRO			;SET PORT 0 IF IRQ'S ENABLED
 	ifne	longa
 	error	"wrong mode"
 	endc
+;	lda	msupresent
+;	bne	.no\@
 	lda	#\1
 	sta	bgm_music
 	stz	bgmcnt
+;.no\@
 	ENDM
-
-startbgmi	MACRO			;SET PORT 0 IF IRQ'S DISABLED
-	ifne	longa
-	error	"wrong mode"
-	endc
-.re\@	lda	#\1
-	sta	apu_port0
-	ldx	#0
-.lp\@	dex
-	bne	.lp\@
-	lda	apu_port0
-	cmp	#\1
-	bne	.re\@
-	stz	apu_port0
-	ENDM
-
-
 ;-------------------------------------------------------------------
 bootapu	MACRO
 	php
 	i16
 	ldx	\1
+;	lda	msupresent
+;	bne	.nobgm\@
 	jsr	sbootapu
 	plp
 	rtl
+;.nobgm\@
+;	lda.l	sndtbl,x
+;	sta	bgm_music
+;	inx ; increment X
+;	stx	snd_ptr
+;	plp
+;	rtl
 	endm
-
 ;-------------------------------------------------------------------
 snd_data	macro
 snd_\1	equ	*-sndtbl
@@ -6032,14 +5620,14 @@ snd_\1	equ	*-sndtbl
 defal	MACRO
 	struct	al_\1,\2
 size_al_\1	=	\2
-	printf	"al_\1 = $",:$al_\1,"  ",al_\1,"%n"
+;	printf	"al_\1 = $",:$al_\1,"  ",al_\1,"%n"
 	ENDM
 ;-------------------------------------------------------------------
 defalx	MACRO
 	struct	alx_\1,\2
 al_\1	=	alx_\1&WM
 size_al_\1	=	\2
-	printf	"alx_\1 =$",:$alx_\1&WM,"  ",alx_\1&WM,"%n"
+;	printf	"alx_\1 =$",:$alx_\1&WM,"  ",alx_\1&WM,"%n"
 	ENDM
 ;-------------------------------------------------------------------
 
@@ -6081,11 +5669,9 @@ TESTKEYDOWN2	MACRO
 	bit	#padl_\1
 	ENDM
 ;-------------------------------------------------------------------
-
-irv	macro
-	dw	(\1)&WM
+irv	macro ; something to do with IRQ (IRQ Variable?)
+	dw	(\1)&WM ; Direct Write value in arg 1 & $FFFF ?
 	endm
-
 ;-------------------------------------------------------------------
 
 
@@ -6218,14 +5804,12 @@ Do_Hdr	=	0
 
 incbinfile	MACRO
 	incbin	\1
-	fileslog	\1
 	ENDM
 
 ;-------------------------------------------------------------------
 
 inccolfile	MACRO
 	inccol	\1,\2,\3
-	fileslog	\1
 	ENDM
 
 ;-------------------------------------------------------------------
@@ -6242,12 +5826,9 @@ WEAPON_\1	equ	cweapon
 cweapon	=	cweapon+2
 	ENDM
 ;---------------------------------------------------
-disable	MACRO
-
-	sei
-
+disable	MACRO ; why bother with this macro? literally just one instruction.
+	sei ; disable interrupts
 	ENDM
-
 ;---------------------------------------------------
 
 enable	MACRO
@@ -6265,10 +5846,8 @@ enable	MACRO
 	ENDM
 ;---------------------------------------------------
 
-routechange	MACRO
-
+routechange	MACRO ; Change route on planet selection screen
 	jsl	routechange\1_l
-
 	ENDM
 
 ;---------------------------------------------------
@@ -6285,7 +5864,7 @@ clrmes	MACRO
 
 
 ;---------------------------------------------------
-fast	MACRO
+fast	MACRO ; Run MARIO chip @ 21.4mhz (no clock divider)
 	IFEQ	LONGA
 	lda	#1
 	sta	$3039
@@ -6298,7 +5877,7 @@ fast	MACRO
 	ENDM
 
 ;---------------------------------------------------
-slow	MACRO
+slow	MACRO ; Run MARIO chip @ 10.7mhz (enable clock divider)
 	IFEQ	LONGA
 	lda	#0
 	sta	$3039
@@ -6353,7 +5932,7 @@ screen_off	macro
 ;    jb	hello		;will branch to hello because 100 is below 200
 ;
 ; je   - equal
-; js   - sign
+; js   - sign (negative)
 ; jc   - carry
 ; ja   - above (unsigned)
 ; jae  - above or equal (unsigned)
@@ -6364,7 +5943,7 @@ screen_off	macro
 ; jl   - less (signed)
 ; jle  - less or equal (signed)
 ; jne  - not equal
-; jns  - not sign
+; jns  - not sign (jump if + or 0)
 ; jnc  - not carry
 ; jna  - not above (unsigned)
 ; jnae - not above or equal (unsigned)
@@ -6540,5 +6119,18 @@ xxalc	macro
 \1	equ	xxmempt
 xxmempt	=	xxmempt+\2
 	endm
-
-
+;---------------------------------------------------------------
+; replicates MVN instruction for SASM
+sasm_mvn	MACRO ; src,dest
+; example: sasm_mvn	$32,$7E
+; raw opcodes are little endian so we reverse the arguments
+	db $54,\2,\1
+	ENDM
+;---------------------------------------------------------------
+; replicates MVP instruction for SASM
+sasm_mvp	MACRO ; src,dest
+; example: sasm_mvp	$32,$7E
+; raw opcodes are little endian so we reverse the arguments
+	db $44,\2,\1
+	ENDM
+;---------------------------------------------------------------

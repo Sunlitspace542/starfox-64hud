@@ -1,4 +1,3 @@
-
 	IFNE	RAMLEFT
 
 Zero_Page_free	=	$100-zmempt
@@ -22,12 +21,33 @@ ZMario_RAM_free	=	$700200-zmmempt
 
 	ENDC
 
+; Birthdays! (SASMX has them for the SF dev team, so why not for us?)
+
+	IFEQ	day-7
+	IFEQ	month-12
+	printf	"%nHappy birthday UltraStarFox!%n"
+	ENDC
+	ENDC
+
+	IFEQ	day-26
+	IFEQ	month-8
+	printf	"%nHappy birthday Kando!%n"
+	ENDC
+	ENDC
+
+	IFEQ	day-5
+	IFEQ	month-4
+	printf	"%nHappy birthday Sunlit!%n"
+	ENDC
+	ENDC
+
+	IFEQ	day-22
+	IFEQ	month-9
+	printf	"%nHappy birthday Monika!%n"
+	ENDC
+	ENDC
+
 
 	gettime	endtime
 totaltime	=	endtime-starttime
-
-	FOPEN	lastasm.tmp
-	time	currenttime
-	printf	(currenttime>>24)&255,":",(currenttime>>16&255),"%n"
-	FCLOSE	!
 

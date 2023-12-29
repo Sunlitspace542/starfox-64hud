@@ -11,7 +11,7 @@
 	include	INC\shmacs.inc
 	include	EXT\windows.ext
 	include	INC\bgmacs.inc
-	include	maps\maplist.ext
+	include	EXT\maplist.ext
 	include	INC\marioi.inc
 	include	EXT\bootnmi.ext
 	
@@ -21,10 +21,9 @@
 ;------------------------------------------------------------------
 	bank	6
 	incfile	ASM\blink.asm
-	incfile	ASM\STRAT\gcstrats.asm
-	incfile	ASM\STRAT\expstrat.asm
+	incfile	STRAT\gcstrats.asm
+	incfile	STRAT\expstrat.asm
 
-cacheon	=	1
      	incfile	MARIO\mmacs.mc
 	mario	on
 	incfile	MARIO\mhofs.mc		;Kristers .mc files
@@ -34,7 +33,7 @@ cacheon	=	1
 	bankend	6
 
 	bank	33
-	incfile	ASM\STRAT\gstrats.asm
+	incfile	STRAT\gstrats.asm
 	bankend	33
 
 	include	INC\tail.inc

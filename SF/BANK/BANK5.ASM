@@ -29,7 +29,7 @@
 	include	EXT\main.ext
 	include	EXT\bgs.ext
 	include	EXT\paths.ext
-	include	EXT\blink.ext
+	;include	EXT\blink.ext
 	include	EXT\sound.ext
 	include	EXT\mdata.ext
 	include	EXT\endseq.ext
@@ -42,7 +42,7 @@
 
 
 real_istrats =	0
-	include	ASM\STRAT\istrats.asm
+	include	STRAT\istrats.asm
 
 
 ;------------------------------------------------------------------

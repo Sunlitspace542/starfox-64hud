@@ -30,12 +30,13 @@
 	include	EXT\shapes.ext
 	include	EXT\sgtabs.ext
 	include	EXT\gastrats.ext
-	include	maps\maplist.ext
+	include	EXT\maplist.ext
 	include	EXT\fontdata.ext
 	include	EXT\paths.ext
 	include	EXT\expstrat.ext
 	include	EXT\shbanks.ext
 	include	EXT\mem.ext
+	include	EXT\msu.ext
 	include	INC\istrats.inc
 
 	include	EXT\mhofs.ext
@@ -101,8 +102,6 @@ planetdmapos2	dw	100
 	minfo	coltabs
 	incfile	ASM\bgs.asm
 	minfo	bgs
-	incfile	ASM\sound.asm
-	minfo	sound
 	incfile	ASM\obj.asm
 	minfo	obj
 	incfile	ASM\planets.asm
@@ -142,6 +141,9 @@ planetdmapos2	dw	100
 	inccru	bgf1pcr,data\f-1.pcr
 	incfile	ASM\cont.asm
 	minfo	cont
+	incfile	ASM\sound.asm
+	minfo	sound
+
 	bankend	36
 ;------------------------------------------------------------------
 

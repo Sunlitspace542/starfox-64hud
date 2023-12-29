@@ -1,13 +1,20 @@
 ;***************************************************************************
 ;*                                                                         *
-;*                                Star Fox                                 *
+;*                               Star Fox                                  *
+;*                              -----------                                *
+;*                                                                         *
+;*                           SuperNES version.                             *
+;*                                                                         *
+;*                                                                         *
+;*                           Argonaut Software.      		               *
+;*                                                                         *
 ;*_________________________________________________________________________*
 ;*                                                                         *
 ;*  File : SOUND.ASM                                                       *
 ;*                                                                         *
 ;*_________________________________________________________________________*
 ;*                                                                         *
-;*  Descr : Sound Driver                                                   *
+;*  Descr : Sound Handler												   *
 ;*                                                                         *
 ;*_________________________________________________________________________*
 ;*                                                                         *
@@ -118,12 +125,18 @@ sndtbl
 
 
 ;--------------------------------------------------------------------
-sbootapu	a8
-	disable
+sbootapu	a8 ; Start the SPC700, set A to 8-bit
+	disable ; Disable interrupts (sei)
 	lda.l	sndtbl,x
 	sta	bgm_music
-	inx
+	inx ; increment X
 	stx	snd_ptr
+
+;	lda	msupresent
+;	beq	.noexit
+;	stz	bgmcnt	
+;	rts
+;.noexit
 
 	lda	firstdnld
 	beq	.first
@@ -276,6 +289,7 @@ sboot_wait4	cmp	apu_port0
 
 	stz	bgmcnt
 	enable
+	;blink	3 ;crash handler test
 	rts
 
 
@@ -289,7 +303,17 @@ boot_repeat
 	lda	#0
 	bra	boot_entry2
 boot_loop	xba
+
+	cpx	#$235C
+	bne	.reg
+
+	lda	msupresent
+	beq	.reg
+	lda #$2F
+	bra	.don
+.reg	
 	lda	[address],y
+.don
 	iny
 	xba
 boot_wait1	cmp	apu_port0

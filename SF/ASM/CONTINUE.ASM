@@ -43,9 +43,15 @@ foxy_continue_l
 	php
 	phb
 	a8i16
+	IFNE	FASTROM
 	lda	#$80
 	pha
 	plb
+	ELSEIF
+	lda	#0
+	pha
+	plb
+	ENDC
 	lda	credits
 	lbeq	.end2
 	stz	trans_flag
@@ -747,7 +753,7 @@ friends_messages_l
 	ai16
 	lda	#61 ;set message x pos
 	sta.l	m_x1 ;save value for later
-	lda	#165  ;set message y pos
+	lda	#165 ;set message y pos
 	sta.l	m_y1 ;save value for later
 	txa
 	sta.l	m_txtdata
@@ -762,8 +768,8 @@ friends_messages_l
 	ai16
 	lda	#60 ;set message x pos
 	sta.l	m_x1 ;save value for later
-	lda	#164   ;set message y pos
-	sta.l	m_y1 ;save value for later 
+	lda	#164 ;set message y pos
+	sta.l	m_y1 ;save value for later
 	txa
 	sta.l	m_txtdata
 	jsr	.chkmeter
@@ -895,9 +901,9 @@ friends_messages_l
 	adc	x1
 	adc	#facedata&WM
 	sta.l	m_faceptr
-	lda	#2 ; Character Portrait X pos
+	lda	#2    ; Character Portrait/mugshot X pos
 	sta.l	m_bigx
-	lda	#18*8 ; Character Portrait Y pos
+	lda	#18*8 ; Character Portrait/mugshot Y pos
 	sta.l	m_bigy
 	call_mario	mcopyface
 	plp

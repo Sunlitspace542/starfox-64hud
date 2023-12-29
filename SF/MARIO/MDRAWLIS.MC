@@ -758,7 +758,7 @@ rzrad	equr	6
 
 
 boostx	=	22*8 ; Boost meter X pos
-boosty	=	11   ; Boost meter Y pos
+boosty	=	11 ;22*8 ; Boost meter Y pos
 boostheight =	8
 
 mboostmeter
@@ -860,8 +860,8 @@ mboostmeter
 
 	ENDC
 
-damagex	=	4
-damagey	=	3
+damagex	=	4 ;8 ; Shield meter (Damage meter) X pos
+damagey	=	3 ;22*8 ; Shield meter (Damage meter) Y pos
 damageheight =	8
 
 mdamagemeter
@@ -899,7 +899,11 @@ mdamagemeter
 	move	r2,#damagey+2
 	move	r4,#damageheight-4
 
+	IFNE	shieldboostcolorbox
+	move	r0,#4
+	ELSEIF
 	move	r0,#2
+	ENDC
 	mcall	mdrawsolidbox
 	nop
 
@@ -963,58 +967,61 @@ mdrawbossHP
 	mpush	r11
 
 	move	r0,[m_bossmaxHP]
-	beq	.nodraw
 	add	#10
 	to	r1
 	lob
 
 	move	r0,[m_bossHP]
 	lob
-	beq	.nodraw
 	cmp	r1
 	bcc	.nowt
 	nop
 	ibt	r0,#0
 	sms	[m_bossHP],r0
 .nowt
-;	ibt		r0,#100
+
 	move	r0,[m_bossmaxHP]
-	to	r3
+	to	r4
 	lob
 	beq	.nodraw
 	nop
 	bpl	.nodiv2
 	nop
-	with	r3
+	with	r4
 	lsr
 .nodiv2
 
-	inc	r3
-	inc	r3
-	inc	r3
-	inc	r3
+	inc	r4
+	inc	r4
+	inc	r4
+	inc	r4
 
-	move	r4,#8
+	move	r3,#8 ; width 8
 
-;we want it to go back more if there's less hp
-	
-	move	r5,[m_bossmaxHP]	;r5 = boss hp
-	ibt r0,#8					;r0 = #
-	add	r5						;add hp to #
-;	move	r0,#108 ;x?
-	to	r1						;set as X position
-	sub	r3
+	move	r0,#gameNum_col*8-2 ; y = 220
+	; don't do this
+	;to	r1	;set as X position
+	;sub	r4  ; (r0 = r1) -= r3 ; width
 
-	move	r2,#20 ;y?
+	move	r2,#34 ;Y = 2 ; was 2
 
-	move	r5,r1
-	move	r6,r2		; store x,y
+	; i have no idea what the x value is,
+	; so i'm just going to change before it gets stored
+	move	r1,#5		; hack to change X
 
-	move	r0,#14		; colour of outer box
-	mcall	mdrawbox
+; bar height cap
+;bossbarheight	equ	90
+	;cap height
+;	move	r4,#bossbarheight
+
+	move	r5,r1		; store x and y to draw the bar later
+	move	r6,r2
+
+	move	r0,#14		; set colour of outer box
+	mcall	mdrawbox	; draw it
 	nop
 
-	move	r1,r5
+	move	r1,r5 ; get x and y we stored earlier
 	move	r2,r6
 
 	inc	r1
@@ -1023,17 +1030,24 @@ mdrawbossHP
 	inc	r2
 
 	move	r0,[m_bossHP]
-	to	r3
+	to	r4
 	lob
 	move	r0,[m_bossmaxHP]
 	lob
 	bpl	.nodiv2_2
 	nop
-	with	r3
-	lsr	r3
+	with	r4
+	lsr	r4
+
+;; throwing all those r4 ops out the window
+
 .nodiv2_2
-	move	r4,#4
-	move	r0,#2
+	move	r3,#4 ; width 4
+	move	r0,#2 ; set colour
+
+	;cap height
+	;move	r4,#bossbarheight-4 ; bar is inset 2px above and below inside outer box
+
 	mcall	mdrawsolidbox
 	nop
 .nodraw

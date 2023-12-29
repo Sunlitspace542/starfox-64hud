@@ -11,8 +11,14 @@
 	include	EXT\bootnmi.ext
 
 	bank	9
-	incfile	ASM\STRAT\dstrats.asm
-	incfile	ASM\STRAT\ga3strats.asm
+	incfile	STRAT\dstrats.asm
+	incfile	STRAT\ga3strats.asm
+
+	public	bgm11
+	public	bgm11len
+bgm11	incbinfile	snd\sgbgm11.bin
+bgm11len	equ	*-bgm11
+
 	bankend	9
 
 	include	INC\tail.inc

@@ -49,7 +49,7 @@
 	incfile	ASM\sgtabs.asm
 	incfile	ASM\sgdata.asm
 
-	incfile	INC\arctan.asm
+	incfile	INC\arctan.inc
 
 
 Do_HDR	=	1
@@ -65,7 +65,7 @@ Do_HDR	=	1
 	incfile	SHAPES\kshapes.asm
 Do_HDR	=	0
 
-start	jmp.l	startboot
+start	jmp.l	startboot ; Entrypoint
 
 
 cop_ve
@@ -87,16 +87,15 @@ abort_vn
 	ELSEIF
 bgandpcr
 	ENDC
-	incfile	ASM\STRAT\istrats.asm
-	incfile	ASM\STRAT\d3strats.asm
+	incfile	STRAT\istrats.asm
+	incfile	STRAT\d3strats.asm
+	IFNE	msu
+	include	ASM\MSU.ASM ; Include MSU playback logic (I hate hardcoded ROM locations)
+	ENDC
+	; must be space at end of bank 32 for MSU
 	bankend	32
 
-
-
-; TODO:
-; (done) make this cleaner by adding IF's for dest code
-; and map mode if we decide to make fastrom disable-able, that is, if snes9x 1.61 is ever released)
-; (done) also check to make sure each dest code is correct
+	;; ROM HEADER
 
 	org $00ffb0,$7fb0
 	db	"01"				; Maker Code
@@ -110,12 +109,24 @@ bgandpcr
 
 	IFEQ	internalname	; if internalname = 0
 	db	"STAR FOX             "  
-	ELSEIF					; if internalname = 1
+	ENDC				; if internalname = 1
+	
+	IFEQ	internalname-1
 	db	"STAR WING            "  
 	ENDC
 
+	IFEQ	internalname-2
+	docustomname ; invoke macro to do custom name
+	ENDC
+
 	; hardware info
+	IFNE	FASTROM 
+	; I would set the FastROM map flag but a lot of people still use older versions of SNES9x,
+	; so I'll leave this be for compatibility - SL
 	db	$20					; Map Mode (20 = SlowROM, 30 = FastROM) LoROM
+	ELSEIF
+	db	$20					; Map Mode (20 = SlowROM, 30 = FastROM) LoROM
+	ENDC
 	db	$14					; Cartridge Type
 							 ; (13) Super FX 1 (StarFox 1)
 							 ; (14) Super FX 2 (DOOM)

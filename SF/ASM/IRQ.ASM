@@ -1,15 +1,30 @@
-
+;***************************************************************************
+;*                                                                         *
+;*                               Star Fox                                  *
+;*                              -----------                                *
+;*                                                                         *
+;*                           SuperNES version.                             *
+;*                                                                         *
+;*                                                                         *
+;*                           Argonaut Software.      		               *
+;*                                                                         *
+;*_________________________________________________________________________*
+;*                                                                         *
+;*   File: IRQ.ASM                                                         *
+;*_________________________________________________________________________*
+;*                                                                         *
+;*  Descr: IRQ routines.                                                   *
+;*                                                                         *
+;***************************************************************************
 	incpublics	EXT\irq.ext
 
-
-
-NOBGTRANS	=	0
+NOBGTRANS	=	0 ; something to do with the transfer loop? (BG = background?)
 
 	shorta
 	shorti
-irqcode_l	ldx	trans_flag
-	jmp	(.tab&WM,x)
-.tab	irv	irqblank
+irqcode_l	ldx	trans_flag ; Load transfer flag into X
+	jmp	(.tab&WM,x) ; Jump to LUT &$FFFF?
+.tab	irv	irqblank ; declare IRQ variables?
 	irv	irqbit1		;2
 	irv	irqbit2		;4
 	irv	irqbit3		;6
@@ -33,7 +48,7 @@ irqcode_l	ldx	trans_flag
 
 	shorta
 	shorti
-irqsetmode1	i16
+irqsetmode1	i16 ; enable interrupts
 	lda	#hdmaf_inidisp+hdmaf_win
 	sta	hdmaen_gc
 	sta	hdmaen
@@ -1552,7 +1567,11 @@ startmus	php
 	beq	.check
 	bra	.trig3
 .start	lda	bgm_music
+	IFNE	msu
+	jsr 	$7ED000 ; MSU-1 routine to determine song to play
+	ELSEIF
 	sta	apu_port0
+	ENDC
 	inc	bgmcnt
 	bra	.trig3
 .check	lda	apu_port0
@@ -1798,9 +1817,15 @@ window_buffer	php
 
 mouse_read2
 	PHB
-	LDA	#$80
-	PHA
-	PLB
+	IFNE	FASTROM
+	lda	#$80
+	pha
+	plb
+	ELSEIF
+	lda	#0
+	pha
+	plb
+	ENDC
 
 	php
 	;sep	#$30		

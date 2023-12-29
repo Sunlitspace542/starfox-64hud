@@ -730,10 +730,12 @@ do_crosshair	php
 .off	plp
 	rts
 .on
-	IFEQ	crosshairalwayson
+	IFEQ	crosshon
 	lda	splayerflymode
 	cmp	#spfm_inside
 	bne	.off
+	ELSEIF
+	;
 	ENDC
 
 	a16
@@ -806,6 +808,7 @@ chy	equ	100
 	rts
 
 
+; "ENEMY" text sprite
 do_enemy	a8
 	lda.l	m_bossmaxhp
 	and	#255

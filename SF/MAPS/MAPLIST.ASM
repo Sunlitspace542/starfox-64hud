@@ -1,5 +1,5 @@
 
-	INCPUBLICS	maps\maplist.ext
+	INCPUBLICS	EXT\maplist.ext
 
 incmap	MACRO
 	incfile	maps\\\1.asm
@@ -42,15 +42,13 @@ course1	mapdef	level1_1
 	INCMAP	map2_3c
 	INCMAP	map2_4
 	INCMAP	map2_5
-	INCMAP	map2_6a
-	INCMAP	map2_6b
-	INCMAP	map2_6c
-	INCMAP	map2_6d
 
 
 armsstart
 	INCMAP	armsmap
+	IFNE	prntrouln_on
 	printroulen	armsstart,<armsmap>
+	ENDC
 
 
 	INCMAP	map3_1a
@@ -81,13 +79,9 @@ armsstart
 	IFEQ	cesdemo-1
 	INCMAP	cmap3_1b
 	INCMAP	cmap3_2
-	fileslog	maps\map3_1b.asm
-	fileslog	maps\map3_2.asm
 	ELSEIF
 	INCMAP	map3_1b
 	INCMAP	map3_2
-	fileslog	maps\cmap3_1b.asm
-	fileslog	maps\cmap3_2.asm
 	ENDC
 
 

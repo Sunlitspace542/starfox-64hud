@@ -11,19 +11,14 @@
 	include	EXT\bootnmi.ext
 
 	bank	11
-	incfile	ASM\STRAT\pistrats.asm
-	incfile	ASM\STRAT\pcstrats.asm
-	incfile	ASM\STRAT\pstrats.asm
+	incfile	STRAT\pistrats.asm
+	incfile	STRAT\pcstrats.asm
+	incfile	STRAT\pstrats.asm
 	bankend	11
 
 	bank	40
-	incfile	ASM\STRAT\gb2strats.asm
-	bankend 40
-
-	public	bgm11
-	public	bgm11len
-bgm11	incbinfile	snd\sgbgm11.bin
-bgm11len	equ	*-bgm11
+	incfile	STRAT\gb2strats.asm
+	bankend	40
 
 	include	INC\tail.inc
 

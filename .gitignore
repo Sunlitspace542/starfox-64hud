@@ -1,12 +1,23 @@
-# Object files
-*.sob
-*.SOB
-
 #ROMs
 *.sfc
 *.smc
 *.SFC
 *.SMC
+*.srm
+*.ram
+
+#MSU stuff
+*.msu
+*.pcm
+
+#ZIPs
+*.7z
+*.zip
+*.rar
+
+#backups
+*.bak
+*.BAK
 
 # build logs
 *.LOG
@@ -17,3 +28,13 @@
 */SF/*.tmp
 */SF/*.txt
 *.TXT
+
+# Files generated during assembly
+*.CCR
+*.PCR
+SF/DATA/COL/*.PAC
+SF/DATA/COL/ALLCOLS.COL
+
+# Object files
+*.sob
+*.SOB
