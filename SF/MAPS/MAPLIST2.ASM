@@ -1,20 +1,9 @@
 	INCMAP	MAPP
 
-	IFEQ	cesdemo-1
-	INCMAP	cmap1_1b
-	INCMAP	cmap2_1b
-	INCMAP	cmap1_2
-	INCMAP	cmap2_2
-	ELSEIF
 	INCMAP	map2_1b
 	INCMAP	map1_1b
 	INCMAP	map2_2
-	IFEQ	CONTEST
 	INCMAP	map1_2
-	ELSEIF
-	INCMAP	emap1_2
-	ENDC
-	ENDC
 
 
 	INCMAP	map1_3a
@@ -46,22 +35,14 @@ mexitstart
 	printroulen	mexitstart,<mexitmap>
 	ENDC
 lexitstart
-	IFNE	prntrouln_on
 	INCMAP	lexitmap
+	IFNE	prntrouln_on
 	printroulen	lexitstart,<lexitmap>
 	ENDC
 
 	INCMAP	cl_gnd
 
-	IFEQ	cesdemo-1
-	INCMAP	clevel1_1
-	ELSEIF
-	IFEQ	CONTEST
 	INCMAP	level1_1
-	ELSEIF
-	INCMAP	eleve1_1
-	ENDC
-	ENDC
 
 
 	INCMAP	level1_2

@@ -1,11 +1,9 @@
 	global	mbumwipe,m_winwbglog,m_wintabptr
 	global	mcalcperc,mprt2zeros,mkrisdivu3115
-
-	global	oopspal,oopschr,oopspic
 	global	m_numshapes,mdo_3d_display,m_dotsorstars
 	global	mclrbitmaps2,mclrbitmaps3,m_viewposx
 	global	m_y1
-	global	bg_scrollbuffer,m_damage,m_boostcnt
+	global	bg_scrollbuffer,m_damage
 	global	m_boostanim,m_rotx,m_bigx,m_bigy,mcalc_circle
 	global	m_circlebuf,m_circlebuf2,m_clrbitmaps
 	global	m_x1,m_txtdata,mprintstr,m_z1,m_xp1,mprtdecstop
@@ -43,6 +41,9 @@
 	global	m_planetstars,m_particlesON,m_defaultID
 	global	m_hudcolour,m_hudflags
 	global	mallrotzsort,mdrawsprite32
+	ifeq	shieldboostcolorbox
+	global	m_shieldup
+	endc
 
 
 	ifne	mario_stats3d

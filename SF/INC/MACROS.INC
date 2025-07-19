@@ -1,3 +1,48 @@
+;------------------------------------------------------------------------
+	IFD		_ARGSFX
+; Rotates a string left by offset for ARGSFX
+rols	MACRO	[string,offset]
+	substr	{offset},,{string}
+
+	ENDM
+
+; Rotates a string right by offset (ARGSFX only)
+rors	MACRO	[string,offset]
+	substr	0,((strlen {string})-{offset}),{string}
+
+	ENDM
+
+	ENDC	;_ARGSFX
+;------------------------------------------------------------------------
+
+; Define Long
+; From Star Fox 2
+dl	macro	[address]
+	dw	({address})&WM
+	db	({address})>>16
+	endm
+
+; Used in SGDATA.ASM
+rndbyte255	macro
+rndval =	(rndval*91+$61d7)&$ffff
+	db	rndval&255
+	endm
+
+; Used for random verts
+rndbyte	macro
+rndval =	(rndval*91+$61d7)&$ffff
+	db	rndval&63
+	endm
+
+rndword	macro
+rndval =	(rndval*91+$61d7)&$ffff
+	dw	rndval&63
+	endm
+	
+rndval	=	$5a79
+
+;------------------------------------------------------------------------
+
 turnonoff	macro	[var]		;turns a variable on or off, whichever is the opposite of its current state
 	pha							;push anything in the accumulator out into the stack to retrieve later
 	lda	{var}					;load the variable into the accumulator
@@ -7,7 +52,8 @@ turnonoff	macro	[var]		;turns a variable on or off, whichever is the opposite of
 	pla							;pull accumulator back out that we pushed earlier
 	endm
 
-;--------------------------------------------------------------
+;------------------------------------------------------------------------
+
 settext	macro	[column,row]					;Sets the column + row for upcoming text
 	a16											;16 bit accumulator
 	pha
@@ -17,16 +63,10 @@ settext	macro	[column,row]					;Sets the column + row for upcoming text
 	sta	printpt+1								;Store to upper 2 bytes of printpt
 	pla
 	endm
-;--------------------------------------------------------------
-settxt	macro	[column,row]
-	settext	{column},{row}
-	endm
-;----------------------------------------------------------------
-showtext	macro	[table]
-	showtxt	{table}
-	endm
-	
-showtxt	macro	[table]				;Shows the full text in a single table
+
+;------------------------------------------------------------------------
+
+showtext	macro	[table]			;Shows the full text in a single table
 	stz	textpt
 	pha								;Push accumulator
 	a16
@@ -41,94 +81,163 @@ showtxt	macro	[table]				;Shows the full text in a single table
 .start\@
 	sta	open_text					;store this letter into open_text
 
-	lda	#open_text					;Load weapon text back into accumulator
+	lda	#open_text					;Load text back into accumulator
 	sta	textpt						;store this into textpt (which gets printed with printt_l)
 	
 	jsl	printt_l					;Run routine to display the letter
 	bra	.stringloop\@				;Go back and continue looking for letters (until it hits a 0)
 
-.stringdone\@						;Done displaying the string "versiontext", continue
+.stringdone\@						;Done displaying the string, continue
 	pla								;pull accumulator
 	endm
 
-;--------------------------------------------------------------
+;------------------------------------------------------------------------
 
-onofftxtspcl	macro	[var]				;Displays ON or OFF depending on the value of [var]
-	pha									;push accumulator
-	lda	{var}							;Check if variable is 1 or 0
-	and	#7
-	beq	\@off							;If its 0, jump to off
-	cmp	#2
-	beq	\@onplus
-	cmp	#3
-	bpl	\@onplusplus
-	showtxt	p2text						;otherwise, display ON
-	bra	\@done						;jump to end
-\@onplus
-	showtxt	p2plustext						;display ON+
-	bra	\@done
-\@onplusplus
-	showtxt	p4text						;display ON+
-	bra	\@done
-\@off
-	showtxt	offtext						;display OFF
-	bra	\@done
-\@done
-	pla									;pull accumulator
+settxt	macro	[column,row]
+	settext	{column},{row}
 	endm
 
-;--------------------------------------------------------------
+;------------------------------------------------------------------------
 
-
-onofftxt	macro	[var]				;Displays ON or OFF depending on the value of [var]
-	pha									;push accumulator
-	lda	{var}							;Check if variable is 1 or 0
-	and	#7
-	beq	\@off							;If its 0, jump to off
-	cmp	#2
-	beq	\@onplus
-	cmp	#3
-	bpl	\@onplusplus
-	showtxt	ontext						;otherwise, display ON
-	bra	\@done						;jump to end
-\@onplus
-	showtxt	onplustext						;display ON+
-	bra	\@done
-\@onplusplus
-	showtxt	onplusplustext						;display ON+
-	bra	\@done
-\@off
-	showtxt	offtext						;display OFF
-	bra	\@done
-\@done
-	pla									;pull accumulator
-	endm
-;--------------------------------------------------------------
-onofftext	macro	[var]
-	onofftxt	{var}
+showtxt	macro	[table]
+	showtext	{table}
 	endm
 
-;--------------------------------------------------------------
-offontxt	macro	[var]				;Displays ON or OFF depending on the value of [var] (Opposite of value)
-	pha									;push accumulator
-	lda	{var}							;Check if variable is 1 or 0
-	and	#1
-	beq	.off\@							;If its 0, jump to off
-	showtxt	offtext						;otherwise, display ON
-	bra	.done\@							;jump to end
-.off\@
-	showtxt	ontext						;display OFF
-.done\@
-	pla									;pull accumulator
-	endm
-;--------------------------------------------------------------
+;------------------------------------------------------------------------
 
+; Combines settxt and showtxt together to print a string
+; at the defined column and row.
+kandoprint	macro	[column,row,table]
+	settxt	\1,\2				; Set position for upcoming text
+	showtxt	\3					; Show specified string on screen at specified row and column
+	ENDM
+
+; Print variable on screen at defined column and row (Short address)
+printnum	macro	[column,row,variable]
+	lda	{variable}						; Load variable into A
+	printd	{column},{row}				; Display decimal value of A on screen at specified row and column
+	ENDM
+
+; Print variable on screen at defined column and row (Long address)
+printnuml	macro	[column,row,variable]
+	lda.l	{variable}					; Long load variable into A
+	printd	{column},{row} 				; Display decimal value of A on screen at specified row and column
+	ENDM
+
+;------------------------------------------------------------------------
 
 printvar	macro	[var]				;displays value of a variable to set text point
 	lda	{var}							;load variable to accumulator
 	printd								;display decimal value of accumulator to screen
 	endm
-;--------------------------------------------------------------
+
+;------------------------------------------------------------------------
+
+; Defines a string to be printed with kandoprint
+; Usage...
+;	definestring	mycoolstring,<my cool string>
+definestring	MACRO	[label,text]
+{label}					; Write label
+	defs	2,"{text}"	; Define text param as a string
+	UPPER	2			; Uppercase it
+	run	' db "%$2"'		; Write the string
+	dw	0				; Terminate string
+	ENDM
+
+;------------------------------------------------------------------------
+
+; These macros print strings on screen using the MARIO chip rather than the SNES CPU.
+
+; Prints a string defined in GAMETEXT.ASM at specified X and Y.
+marioprint	MACRO	[xpos,ypos,string]
+	ai16
+	lda	#{xpos}
+	sta.l	m_x1
+	lda	#{ypos}
+	sta.l	m_y1
+	lda	#{string}&WM
+	sta.l	m_txtdata
+	call_mario	mprintstr
+	ENDM
+
+; Print variable as a decimal number on screen at specified X and Y.
+marioprintdec	MACRO	[xpos,ypos,var]
+	ai16
+	lda	#{xpos}
+	sta.l	m_x1
+	lda	#{ypos}
+	sta.l	m_y1
+	lda.l	{var}
+	and	#255
+	sta.l	m_z1
+	call_mario	mprtdecstop
+	ENDM
+
+;------------------------------------------------------------------------
+
+; Sets up RNG seed for random_l
+setuprng	MACRO
+	IFEQ	rngmode-2
+	savemode
+	ai8
+	LDA #$E5 ; seed, can be anything except 0
+	STA rand
+	LDA #$28
+	STA rand+1
+	returnmode
+	ELSEIF ; rngmode == 0 || 1
+	savemode
+	ai8
+	lda	#$3a
+	sta	rand
+	lda	#$a7
+	sta	rand+1
+	lda	#$55
+	sta	rand+2
+	lda	#$7f
+	sta	rand+3
+	returnmode
+	ENDC
+	ENDM
+
+xorshiftrng	MACRO
+	; Code taken from https://codebase64.org/doku.php?id=base:16bit_xorshift_random_generator
+	; should be run with A in 8-bit mode
+	; saves 2 bytes of zp vs the original routine
+	; in C, what this does is:
+	;	rand ^= rand << 7;
+	;	rand ^= rand >> 9;
+	;	rand ^= rand << 8;
+	;	return rand;
+	LDA rand+1
+	LSR a
+	LDA rand
+	ROR a
+	EOR rand+1
+	STA rand+1 ; high part of x ^= x << 7 done
+	ROR a	; A has now x >> 9 and high bit comes from low byte
+	EOR rand
+	STA rand  ; x ^= x >> 9 and the low part of x ^= x << 7 done
+	EOR rand+1 
+	STA rand+1 ; x ^= x << 8 done
+	ENDM
+
+;------------------------------------------------------------------------
+
+; Checks for space remaining
+
+chkmemoryfull	macro	[symbol,name,extramsg]
+	IFEQ	{symbol}
+	printf	"%01%31Warning: {name} full! {extramsg}%n%00"
+	ENDC
+	ENDM
+
+chkmemoryexceeded	macro	[symbol,name,extramsg]
+	IFLT	{symbol}
+	printf	"%01%31Error: {name} space exceeded! {extramsg}%n%00"
+	error+
+	ENDC
+	ENDM
 
 ;------------------------------------------------------------------------
 
@@ -2811,7 +2920,6 @@ stupt	=	stupt+\2
 
 
 ;------------------------------------------------------------------------
-; TODO: make sure the comments are correct
 a8	macro ; set A to 8 bit
 	shorta
 	sep	#p_a
@@ -4131,38 +4239,6 @@ trigse_rge	macro
 
 txt	macro
 	db	\1
-
-	IFNE	JAPANESE		;JAPANESE = 1
-	db	"\3",0
-	ENDC
-	
-	IFNE	french			;french = 1
-	db	"\3",0
-	ENDC
-	
-	IFNE	german			;german = 1
-	db	"\3",0
-	ENDC
-	
-	IFNE	spanish			;german = 1
-	db	"\3",0
-	ENDC
-	
-	IFEQ	spanish
-	IFEQ	JAPANESE
-	IFEQ	french
-	IFEQ	german
-	db	"\2",0
-	ENDC
-	endc
-	endc
-	endc
-	
-	endm
-;------------------------------------------------------------------------
-
-newtext	macro
-	db	\1
 	db	"\2",0
 	endm
 
@@ -4288,38 +4364,6 @@ setlevel	macro
 	lda	newmap+2
 	sta	mapbank
 	a16
-
-
-;;	IFEQ	NARG
-;;	pha
-;;	ENDC
-;;
-;;	lda	whichroute
-;;	and	#255
-;;	asl	a
-;;	tax
-;;	lda.l	courses,x
-;;	sta	x1
-;;
-;;	IFEQ	NARG
-;;	pla
-;;	ENDC
-;;
-;;	IFNE	NARG
-;;	lda	#\1
-;;	ENDC
-;;	sta	x2
-;;	asl	a
-;;	clc
-;;	adc	x2
-;;	adc	x1
-;;	tax
-;;	lda.l	mapbase,x
-;;	sta	mapptr
-;;	a8
-;;	lda.l	mapbase+2,x
-;;	sta	mapbank
-;;	a16
 	endm
 
 ;------------------------------------------------------------------------
@@ -4327,19 +4371,14 @@ setlevel	macro
 
 bankend	macro
 	IFEQ	NARG
-		IFD	_SASM
 		printf	"BANKEND: Which bank are we talking about here?"
+		error+
 		MEXIT
-		ENDC
 	ENDC
 
 
 	IFNE	FASTROM
-;	IFEQ	\1
-;bank\1left	=	65536-*
-;	ELSEIF
 bank\1left	=	32768-(*-((\1*$10000)+$808000))
-;	ENDC
 	ELSEIF
 	IFEQ	\1
 bank\1left	=	65536-*
@@ -4355,20 +4394,23 @@ totalromspaceleft	=	0
 totalromspaceleft = totalromspaceleft+bank\1left
 
 	IFLT	bank\1left
-		IFD	_SASM
 		progress_off
 		printf	"[0;5;31;1mError: Bank \1 is out of space by ",-bank\1left," bytes.[0m%n"
+		error+
 		progress_on
-		ELSEIF
-Bank_over_flow_in_Bank	=	\1
-		?Bank_over_flow_in_Bank
-		ENDC
 	ENDC
 
-	printf	"%01-- %xbank\1left bytes free.%00%n"
+	; Write free space info to BANKS.CSV
+	fopen	+BANKS.CSV
+	printf	"\1,%xbank\1left %n"
+	fclose	BANKS.CSV
 
-	IFND	_SASM
-	?bank\1left
+	IFD	_SASM
+	printf	"%01-- %xbank\1left bytes free.%00%n"
+	ENDC
+
+	IFD	_ARGSFX
+	printf	"%01-- %xbank\1left  bytes free.%00%n"
 	ENDC
 
 	endm
@@ -4378,12 +4420,11 @@ Bank_over_flow_in_Bank	=	\1
 bank	macro
 
 	IFEQ	NARG
-		IFD	_SASM
 		progress_off
 		printf	"Chigau matey.. the bank macro needs um.. a thingy on the end."
+		error+
 		progress_on
 		MEXIT
-		ENDC
 	ENDC
 
 	printf	"%01-- BANK \1:%00%n"
@@ -4396,11 +4437,6 @@ bank	macro
 
 banknum	=	\1
 Assembling_bank	=	\1
-	IFND	_SASM
-	?Assembling_bank
-	ELSEIF
-;	progress	\1,11
-	ENDC
 
 	endm
 
@@ -4411,7 +4447,7 @@ Assembling_bank	=	\1
 nastyon	macro
 	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
 	ora	#mm_ramn+mm_romn ; OR A With RAM nasty flag + ROM nasty flag (8+16)
- 	sta	mio_mode ; store A to MARIO chip I/O mode var
+	sta	m_scmr ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
@@ -4419,7 +4455,7 @@ nastyon	macro
 ramnastyon	macro
 	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
 	ora	#mm_ramn ; OR A with RAM nasty flag (8)
- 	sta	mio_mode ; store A to MARIO chip I/O mode var
+	sta	m_scmr ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
@@ -4427,14 +4463,14 @@ ramnastyon	macro
 romnastyon	macro
 	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
 	ora	#mm_romn ; OR A with ROM nasty flag (16)
- 	sta	mio_mode ; store A to MARIO chip I/O mode var
+	sta	m_scmr ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
 
 nastyoff	macro
 	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
- 	sta	mio_mode ; store A to MARIO chip I/O mode var
+	sta	m_scmr ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
@@ -4442,7 +4478,7 @@ nastyoff	macro
 ramnastyoff	macro
 	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
 	and	#~mm_ramn ; AND A with RAM nasty flag (8)
- 	sta	mio_mode ; store A to MARIO chip I/O mode var
+	sta	m_scmr ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
@@ -4450,7 +4486,7 @@ ramnastyoff	macro
 romnastyoff	macro
 	lda	mario_draw_mode ; Load the current MARIO chip draw mode into A
 	and	#mm_romn ; AND A with ROM nasty flag (16)
- 	sta	mio_mode ; store A to MARIO chip I/O mode var
+	sta	m_scmr ; store A to MARIO chip I/O mode var
 	endm
 
 ;------------------------------------------------------------------------
@@ -4593,12 +4629,7 @@ fclose	MACRO
 	ENDM
 ;------------------------------------------------------------------------
 
-
-
-
-
-
-report	MACRO
+report	MACRO	[namestr,label,maxlabel]
 	IFND	rlbl
 rlbl	=	0
 	ENDC
@@ -4608,24 +4639,22 @@ rlbl	=	0
 	ELSEIF
 	printf	"      "
 	ENDC
-	IFLT	\2
+	IFLT	{label}
 	printf	"%01%31"
 	ENDC
-	printf	"[20]\1"," = "
+	printf	"[20]{namestr}"," = "
 
-	IFLT	(\2)-10000
-	printf	[4](\2)
+	IFLT	({label})-10000
+	printf	[4]({label})
 	ELSEIF
-	printf	[3](\2)/1024,"K"
+	printf	[3]({label})/1024,"K"
 	ENDC
-p5per	=	(\3)/200
-	printf	" (",[3,0](((\2)+p5per)*100)/(\3),"%%)"
+p5per	=	({maxlabel})/200
+	printf	" (",[3,0]((({label})+p5per)*100)/({maxlabel}),"%%)"
 rlbl	=	rlbl+1
 	printf	"%00"
 
 	ENDM
-
-
 
 ;------------------------------------------------------------------------
 
@@ -4666,8 +4695,6 @@ rlbl	=	0
 	printf	"%n"
 	ENDM
 
-
-
 ;------------------------------------------------------------------------
 
 report_status	MACRO
@@ -4684,9 +4711,9 @@ rlbl	=	0
 	report	<Total Rom Usage>,TotalRomUsed,1024*1024
 	report	<Total Rom Spare>,TotalRomSpaceLeft,1024*1024
 ;	run	"memfree = %k"
-;	report	<Memory Free>,memfree,initial_memory
-;	report	<Est. Symbols Free>,memfree/25,(initial_memory)/25
-;	report	<Total Mem Free>,initial_memory,640*1024
+;	report	<Memory Free>,memfree,initial_assembler_memory
+;	report	<Est. Symbols Free>,memfree/25,(initial_assembler_memory)/25
+;	report	<Total Mem Free>,initial_assembler_memory,640*1024
 	printf	"%n"
 	ENDM
 
@@ -4861,7 +4888,7 @@ printr	MACRO	string,number of repeats
 
 ;------------------------------------------------------------------------
 
-	IFD	_SASM
+	IFD	_SASM!_ARGSFX
 	IFNE	PROGRESS_INDICATOR
 
 	IFEQ	progression_thingy&1
@@ -5104,7 +5131,7 @@ timings_report	MACRO
 	ENDM
 
 ;------------------------------------------------------------------------
-	IFND	_SASM
+	IFND	_SASM!_ARGSFX
 progress_on	MACRO
 	ENDM
 
@@ -5180,7 +5207,7 @@ release	macro
 ;------------------------------------------------------------------------
 
 
-	IFD	_SASM
+	IFD	_SASM!_ARGSFX
 
 bankinfo	MACRO
 
@@ -5505,12 +5532,6 @@ setrad	MACRO	[size]
 	db	ct_set_rad
 	dw	{size}
 	ENDM
-;-------------------------------------------------------------------
-
-saymsg	MACRO	[message]
-	lda	#{message}
-	jsl	send_message_l
-	ENDM
 
 ;-------------------------------------------------------------------
 databank	MACRO
@@ -5766,16 +5787,15 @@ global	MACRO
 
 publics	=	0
 
-INCEXTERNS	MACRO
+INCEXTERNS	MACRO	[filename]
 	INCLUDE	\1
 	ENDM
 
-INCPUBLICS	MACRO
+INCPUBLICS	MACRO	[filename]
 publics	=	1
 	INCLUDE	\1
 publics	=	0
 	ENDM
-
 
 ;-------------------------------------------------------------------
 makeshade	macro
@@ -5867,11 +5887,17 @@ clrmes	MACRO
 fast	MACRO ; Run MARIO chip @ 21.4mhz (no clock divider)
 	IFEQ	LONGA
 	lda	#1
-	sta	$3039
+	sta	m_clsr
+	; Enable fast multiplication mode (MS1) and disable GSU IRQs
+	lda	#cfgr_ms1+cfgr_noirq
+	sta	m_cfgr
 	ELSEIF
 	a8
 	lda	#1
-	sta	$3039
+	sta	m_clsr
+	; Enable fast multiplication mode (MS1) and disable GSU IRQs
+	lda	#cfgr_ms1+cfgr_noirq
+	sta	m_cfgr
 	a16
 	ENDC
 	ENDM
@@ -5880,11 +5906,11 @@ fast	MACRO ; Run MARIO chip @ 21.4mhz (no clock divider)
 slow	MACRO ; Run MARIO chip @ 10.7mhz (enable clock divider)
 	IFEQ	LONGA
 	lda	#0
-	sta	$3039
+	sta	m_clsr
 	ELSEIF
 	a8
 	lda	#0
-	sta	$3039
+	sta	m_clsr
 	a16
 	ENDC
 	ENDM
@@ -5910,14 +5936,6 @@ waithtime	macro	[start,end]
 
 	a8
 
-	endm
-
-;---------------------------------------------------
-minfo	macro	[name]
-	IFNE	NARG
-	printf	"{name}: ",*-minfos,"%n"
-	ENDC
-minfos	=	*
 	endm
 ;---------------------------------------------------
 screen_off	macro
@@ -6111,6 +6129,7 @@ sprtemp	=	0
 defpac	macro
 \1	equ	gamepalettes+__totpallen
 __totpallen	=	__totpallen+(\2*32)
+__totpallines	=	__totpallines+(\2)
 	endm
 
 ;---------------------------------------------------------------
@@ -6132,5 +6151,10 @@ sasm_mvp	MACRO ; src,dest
 ; example: sasm_mvp	$32,$7E
 ; raw opcodes are little endian so we reverse the arguments
 	db $44,\2,\1
+	ENDM
+;---------------------------------------------------------------
+; Incbin a 2bpp CGX file
+inccgx2	MACRO	[filepath,NUMCHRS]
+	inccol	{filepath},0,{NUMCHRS}/2
 	ENDM
 ;---------------------------------------------------------------

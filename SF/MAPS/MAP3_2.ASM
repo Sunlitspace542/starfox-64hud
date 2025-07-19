@@ -1,3 +1,4 @@
+; 3-2 Asteroid Belt 3
 ; SPACE
 map3_2
 
@@ -188,7 +189,7 @@ map3_2
 ; propeller boss
 	fadeoutbgm
 	setbgm	bgm_boss1
-	incmap	webmonster
+	incmap	webmonst
 	mapwaitboss
 	markboss	boss32
 

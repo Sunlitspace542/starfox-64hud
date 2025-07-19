@@ -7,7 +7,7 @@
 	include	EXT\pcstrats.ext
 	include	EXT\pstrats.ext
 	include	EXT\dstrats.ext
-	include	EXT\ga2strats.ext
+	include	EXT\ga2strat.ext
 	include	EXT\expstrat.ext
 	include	EXT\bootnmi.ext
 
@@ -15,10 +15,10 @@
 	incfile	STRAT\gbstrats.asm
 	incfile	STRAT\gastrats.asm
 
-	public	bgmd
-	public	bgmdlen
-bgmd	incbinfile	snd\sgbgmd.bin
-bgmdlen	equ	*-bgmd
+	public	fortuna
+	public	fortunalen
+fortuna	incbinfile	snd\sgbgmd.bin
+fortunalen	equ	*-fortuna
 
 	bankend	8
 

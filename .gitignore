@@ -28,6 +28,13 @@
 */SF/*.tmp
 */SF/*.txt
 *.TXT
+*.CSV
+*.csv
+*.CSV#
+*.csv#
+
+# VSCode stuff
+*/.vscode/*
 
 # Files generated during assembly
 *.CCR
@@ -38,3 +45,7 @@ SF/DATA/COL/ALLCOLS.COL
 # Object files
 *.sob
 *.SOB
+
+# Linker Address Maps
+*.map
+*.MAP

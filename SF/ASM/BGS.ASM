@@ -665,31 +665,6 @@ bg_intro_1	init_bg	mode2
 	bg2Yscroll	24
 	space	night
 
-	IFNE	CONTEST
-bg_timeover_1	init_bg	mode2
-	bg2chr	sc
-	bg2scr	sc
-	palette	contest
-	set_bg
-	info	von,zon,hon,space
-	pstrat	playercred,b,abc
-	hofmode	rotate
-	bg2Yscroll	0
-	space	night
-
-bg_timeup_1	init_bg	mode2
-	bg2chr	ti
-	bg2scr	ti
-	palette	contest
-	set_bg
-	info	von,zon,hon,nodots
-	pstrat	playercred,b,abc
-	hofmode	rotate
-	bg2Yscroll	0
-	space	night
-
-	ENDC
-
 bg_gameover_1	init_bg	mode1
 	bg2chr	and
 	bg2scr	and
@@ -713,10 +688,6 @@ bg_title_1
 
 ; -TITLE PALETTE CHECKS-----------
 
-	IFEQ	contest
-	palette	contest
-	ENDC
-
 	IFEQ	titlelogo
 	palette	cp ; JP
 	ENDC
@@ -730,7 +701,7 @@ bg_title_1
 	ENDC
 
 	IFEQ	titlelogo-3
-	palette	cpg ; PAL/Germany StarWing
+	palette	cpp ; PAL/Germany Starwing
 	ENDC
 
 ; -------------------------------
@@ -748,11 +719,7 @@ bg_title_1
 	hofmode	rotate
 	bg2Yscroll	257
 	bgm	title
-	IFEQ	CONTEST
 	lda	#1+2+4
-	ELSEIF
-	lda	#1+2
-	ENDC
 	sta	tm
 	space	night
 
@@ -981,9 +948,5 @@ bglists	dw	0
 	defbg	special
 	defbg	training
 
-	IFNE	CONTEST
-	defbg	timeover
-	defbg	timeup
-	ENDC
 	dw	0,0	; terminate list
 

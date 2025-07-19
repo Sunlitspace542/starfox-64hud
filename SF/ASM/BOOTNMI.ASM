@@ -37,6 +37,10 @@ startboot	disable ; Disable Interrupts
 
 	jsr	initialise_ram ; Clear RAM
 
+	IFNE	rngmode ; start conditional: if rngmode >= 1
+	setuprng ; setup RNG seed at boot
+	ENDC ; end conditional
+
 	i16 ; set X/Y to 16 bit
 	ldx	#$2ff ; Load $2FF into X
 	txs ; Transfer X to SP (set stack to $2FF, resets the stack)
@@ -81,7 +85,9 @@ restart	ai16 ; set A/X/Y to 16 bit
 
 	jsl	startsfx_l ; Initialize the SNES
 
+	;SAVE ALL RAM VALUES WE WANT TO KEEP BEFORE RAM IS REINITIALISED
 
+	a8
 	lda.l	whichroute ; Load Route # into A
 	pha	; Push A to stack, preserving route number
 	lda	defaulttrain ; Load defaulttrain into A
@@ -97,14 +103,29 @@ restart	ai16 ; set A/X/Y to 16 bit
 	lda	mousemodetemp ; load value in mousemode temp var to A
 	pha ; Push A to stack
 	ENDC ; End conditional
-	IFNE	MSU
+	IFNE	msu_legacy
 	lda	msupresent
+	pha
+	ENDC
+
+	IFNE	rngmode	; if rngmode is xorshift/set at boot
+	lda	rand
+	pha
+	lda	rand+1
 	pha
 	ENDC
 
 	jsr	initialise_ram ; Clear RAM
 
-	IFNE	MSU
+	a8
+	IFNE	rngmode	; if rngmode is xorshift/set at boot
+	pla
+	sta	rand+1
+	pla
+	sta	rand
+	ENDC
+
+	IFNE	msu_legacy
 	pla
 	sta	msupresent
 	ENDC
@@ -144,7 +165,7 @@ firsttimeuse
 	jml	planetseq_l ; Jump to planet routine
 
 ;-----------------------------------------------------------------------
-	IFNE	msu
+	IFNE	msu_legacy
 CheckForMSU
 	lda	MSU_ID
 	cmp	#$53	; 'S'
@@ -242,7 +263,7 @@ initialise_ram
 	dex ; decrement X
 	bpl	.zpage ; repeat until x = 0
 
-	IFNE	msu
+	IFNE	msu_legacy
 	jsl	transfermsu ; Copy MSU1 handler to RAM at $FD00
 	ELSEIF ; when MSU is on, this is called in MSU.ASM instead
 	jsl	copy_to_0101_l ; Copy NMI handler to RAM at $0101
@@ -250,8 +271,8 @@ initialise_ram
 
 ; NTSC/PAL
 	a8 ; set A to 8 bit
-	lda	stat78r ; load stat78r ($213F) into A
-	and	#1<<4 ; AND #1 Shifted left by 4 (?)
+	lda	stat78r ; load stat78r ($213F, PPU2 Status) into A
+	and	#1<<4 ; Get bit 4, which indicates the region of the PPU (0=NTSC/60Hz, 1=PAL/50Hz)
 	sta	ntscpal ; Store A at ntscpal variable
 
 

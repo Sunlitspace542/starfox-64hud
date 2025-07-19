@@ -1,23 +1,53 @@
-
 # UltraStarFox
-Star Fox / Starwing (SNES 1993) source code, modified for ease-of-use and ROMHacking.
+
+Star Fox / Starwing source code, modified for ease-of-use and ROMHacking.  
+
+Go [here](#building) to jump straight to the building instructions.  
+
+## Credits (A-Z)
+- **Kandowontu** - The Original Star Fox Guy, Lifesaver, MSU-1 Patch RE, Rumble System Programmer (Sequences), Rumble Effect Programmer/Polishing, Implemented several features (Mouse, Debug Mode/Crash Handler Restoration, Limit Removals, Easy Wireframes, other fixes and improvements)  
+- **MrL314** - Texture Limit Removal Super FX Code  
+- **Phonymike** - Tools (mugconv, fontconv), ROM Header  
+- **Randal Linden** - Rumble Pad Designer, Rumble Pad Docs, Rumble System Programmer (Rumble Pad NMI Code)  
+- **SegaRetro92** - Texture/Palette Docs, General Graphics Stuff, Author of Several Graphics Tools, German Version GFX/Text Restoration   
+- **Sunlit** - Maintainer, Documentation, Toolchain Engineer, MSU-1 Patch RE, Rumble System Programmer ("Flat Rate" Rumble), Rumble Effect Programmer, Tool Author, German Version GFX/Text Restoration  
 
 ## Features
 
-- SuperFX 21Mhz support
-- FastROM (A bug with the SD2SNES/FXPak Pro causes freezes and crashes on SHVC revisions of the SNES)
-- Lots of free bank space for new models, assets and code
-- 256 texture slots
-- 250 Faces/Vertices limit
+## Cartridge Hardware Support and ROM Configuration
+
+- Uses GSU-2/Super FX 2 @21.4Mhz instead of MARIO Chip 1 @10.7Mhz
+- Super FX MS1 high-speed multiply enabled (if 21mhz is enabled)
+- FastROM support (Do not enable if you are targeting a real cartridge with a real MARIO/GSU-1/GSU-2 IC chip!)
+- MSU-1 support (Original ASM patch by Kurrono, ported by Kando and Sunlit) (**DEPRECATED, TO BE REWRITTEN**)
+
+## Accessory Support
+
+- SNES Mouse support and "analog stick" support via the SNES mouse
+- SNES Rumble Pad support and macros (see ``SF\INC\RMBLMACS.INC`` for macros)
+
+## QOL / Ease-of-use
+
+- Very configurable, see ``SF\CONFIG\CONFIG.INC`` for more info
+- Lots of free ROM space (2MB/16Mbit ROM)
 - Bugfixes and improvements
-- Uses ARGLINK from Star Fox 2 as linker instead of SL
-- Color palette data, MSPRITES, and crunched (compressed) graphics rebuilt at assembly
-- Easier creation of wireframe models (replace face3 and face4 with aface3 and aface4 in the shape file)
+- Build process optimized for speed
+- Palettes and graphics crunched, textures interleaved, and fonts built at assembly
+- Uses ARGLINK and ARGSFX from Star Fox 2 as linker and assembler instead of SL and SASM
+- Easier creation of wireframe models (replace face3 and face4 with aface3 and aface4 in your shape file)
+- Upload ROM directly to SNES and boot with QUsb2Snes and a SD2SNES/FXPak Pro flash cartridge
+
+## Limits Removed/Increased
+
+- 256 texture slots
+- 250 faces/vertices limit for models
+
+## Miscellaneous
+
 - All Starwing PAL and Germany text/GFX for PAL builds
-- SNES Mouse support
-- MSU-1 support (Original ASM patch by Kurrono, ported by Kando and Sunlit)
-- Very configurable, see SF\CONFIG\CONFIG.INC for more info
-- Kando was involved so you know it's good
+- **Kando and Randy were involved so you know it's good**
+
+## Building
 
 ## Building on Windows
 
@@ -31,11 +61,11 @@ To build ROM with Logging, run ``build to log.cmd``.
 
 To clean, run ``clean.cmd``.  
 
-After building, a debug symbol map will be created at ``SYMBOLS.TXT``.
+After building, a debug symbol map will be created at, and a bank space report at ``BANKS.CSV``.  
 
 ## Building on Linux
 
-**NOTE: this was tested on WSL with Ubuntu installed. Your mileage may vary.**  
+**NOTE: this was tested on WSL with Ubuntu installed. YMMV.**  
 
 Requirements: Ubuntu (might work with other distros) snap, DOSBox-X, git  
 
@@ -51,24 +81,41 @@ To build ROM with logging, run ``make log``.
 
 To clean, run ``make clean``.  
 
-After building, a debug symbol map will be created at ``SYMBOLS.TXT``.  
+After building, a debug symbol map will be created at ``SYMBOLS.TXT``, and a bank space report at ``BANKS.CSV``.  
 
-## Helpful Links/tools
+## Uploading ROM to SNES over USB with SD2SNES/FXPak(Pro)
 
-[Star Fox - Source Code Mods](https://docs.google.com/document/d/1kdgPCBeQFYsAepSDNpmwO8ZysRJjdnwK_5gWT2FFQEk/edit?usp=sharing)  
+Uses [USB2SNES-cli](https://github.com/Hyphen-ated/usb2snes-cli) fork by Hyphen-ated. A prebuilt windows EXE is provided.  
+Download [QUSB2SNES](https://github.com/Skarsnik/QUsb2snes/releases).  
+Extract it somewhere and run it. Set it up for an SD2SNES/FXPak Pro.  
+**QUSB2SNES must be running in the background for uploading to function.**  
+You can then run ``send2snes.cmd`` or ``build and send to snes.cmd`` to either upload the current ROM to the SNES or rebuild and upload the freshly built ROM.  
+
+## Contributing
+
+PRs are welcome!  
+All changes to be submitted should be made to the [main](https://github.com/Sunlitspace542/ultrastarfox/tree/main) branch.  
+
+## Helpful Links/Tools
+
+[Argonaut 65816/Super FX Assembly Extension for VS Code](https://github.com/Sunlitspace542/65816-superfx-asm-argonaut-vscode)  
+[SNES Development Manual](https://archive.org/details/SNESDevManual)  
+[fullsnes - SNES Hardware Specifications (by Nocash)](https://problemkaputt.de/fullsnes.htm)  
+[MSU-1 Documentation](https://github.com/Sunlitspace542/MSU-1-Docs)  
 [65c816 Opcodes](https://undisbeliever.net/snesdev/65816-opcodes.html)  
 [65c816 Reference](https://wiki.superfamicom.org/65816-reference)  
-[MARIO (SuperFX) Chip ASM Tutorial/Reference](https://en.m.wikibooks.org/wiki/Super_NES_Programming/Super_FX_tutorial)  
+[Super FX (MARIO) Chip ASM Reference](https://en.m.wikibooks.org/wiki/Super_NES_Programming/Super_FX_tutorial)  
 [EarthBound Music Editor (But for Star Fox)](https://github.com/phonymike/ebmused4sf/)  
 [Star Fox Music Programming Starter Kit (by livvy94)](https://www.dropbox.com/sh/m3sk75dmsyx5tey/AACLDXVcQEJk3ezQCDBitEs7a?dl=0)
 
 ## TODO
-1. OPTIMIZE  
-2. Strip out all Super Star Fox weekend-related code  
-3. Annotate and document code  
-4. MAYBE: Disassemble all BIN files in SND directory, add documentation on custom music and the like  
+
+1. Optimize game where possible (We already have FastROM and 21Mhz SuperFX 2, can we go any further?)  
+2. Annotate and document code (not so sure about doing this anymore)  
+3. MAYBE: Disassemble all BIN files in SND directory, add documentation on custom music and the like  
 
 ## Project Structure
+
 ```
 ultrastarfox
 ├── BIN: exe files needed to assemble game code
@@ -78,9 +125,7 @@ ultrastarfox
 │   ├── BANK: Bank data\ASM files
 │   ├── CONFIG: Various game aspects can be configured here
 │   ├── DATA: GFX files
-│   │   ├── COL: Palette files and Palette Packer
-│   │   ├── CGX: .CGX graphics files that are crunched
-│   │   └── SCR: .SCR tilemap files that are crunched
+│   │   └── COL: Palette files and Palette Packer
 │   ├── EXT: .ext files needed by several .asm files
 │   ├── INC: .inc files, arc tangent table
 │   ├── MAPS: level scripts
@@ -92,7 +137,5 @@ ultrastarfox
 │   ├── SND: sound/music data
 │   └── STRAT: Code for Strategies (Object behaviors)
 ├── TOOLS: tools such as PACKER and SHAPED
-├── DOCS: .md format text files covering various aspects of Star Fox 2
-├── OPTIONALSTUFF: optional graphics files
-└── OTHER: Files for building MSPRITES .bin files
+└── DOCS: .md format text files covering various aspects of Star Fox
 ```

@@ -8,8 +8,11 @@
 	zmalc	m_player,2
 	zmalc	m_numshapes,2
 	zmalc	m_damage,2
-	zmalc	m_boostcnt,2
+;	zmalc	m_boostcnt,2	; moved from zmario to snes wram, 2 bytes of zmario ram freed!!
 	zmalc	m_boostanim,2
+	ifeq	shieldboostcolorbox
+	zmalc	m_shieldup,2
+	endc
 
 rlistptr	equr	r1
 rzstore	equr	r2
@@ -472,6 +475,7 @@ mdrawloop
 	sms	[m_shift],r0
 	mpush	rshapehdrptr
 
+	IFEQ	NOLODS
 	move	r0,rzspare
 	miwt	rwork,3000
 	cmp	rwork
@@ -507,6 +511,7 @@ mdrawloop
 	to	r14
 	add	r14
 	mgetw	rshapehdrptr
+	ENDC	;NOLODS
 .gotshapehd
 
 ;---------------------------------------
@@ -757,9 +762,9 @@ rzrad	equr	6
 	mnop		; return to caller
 
 
-boostx	=	22*8 ; Boost meter X pos
-boosty	=	11 ;22*8 ; Boost meter Y pos
-boostheight =	8
+boostx	=	boostmeterx ; Boost meter X pos
+boosty	=	boostmetery ; Boost meter Y pos
+boostheight =	boostmeterheight ; Boost meter height
 
 mboostmeter
 	mpush	r11
@@ -798,7 +803,11 @@ mboostmeter
 	move	r2,#boosty+2
 	move	r4,#boostheight-4
 
+	IFNE shieldboostcolorbox
 	move	r0,#7
+	ELSEIF
+	move	r0,#6
+	ENDC
 	mcall	mdrawsolidbox
 	nop
 	
@@ -860,9 +869,9 @@ mboostmeter
 
 	ENDC
 
-damagex	=	4 ;8 ; Shield meter (Damage meter) X pos
-damagey	=	3 ;22*8 ; Shield meter (Damage meter) Y pos
-damageheight =	8
+damagex	=	shieldmeterx ; Shield meter (Damage meter) X pos
+damagey	=	shieldmetery ; Shield meter (Damage meter) Y pos
+damageheight =	shieldmeterheight ; Shield meter (Damage meter) height
 
 mdamagemeter
 	mpush	r11
@@ -902,9 +911,19 @@ mdamagemeter
 	IFNE	shieldboostcolorbox
 	move	r0,#4
 	ELSEIF
-	move	r0,#2
+	; if wireframe shield activated:
+	move	r0,[m_shieldup]	; load m_shieldup into r0
+	lob	; test lo byte (the half that the 65816 writes to in calcmeters) and set flags; is the lo byte != 0?
+	beq	.nowireframe	; no, do not change meter color
+	nop	; nop to prevent below instruction from being executed after branching
+	move	r0,#7	; yes!
+	bra	.pickedcolor	; all done
+	nop
+.nowireframe	; if shieldup flag not set
+	move	r0,#2	; use normal meter color
+.pickedcolor
 	ENDC
-	mcall	mdrawsolidbox
+	mcall	mdrawsolidbox	; draw the shield bar
 	nop
 
 	mpop	pc
@@ -1164,8 +1183,6 @@ mdrawhorzline
 
 planBMPSZ	equ	16*16*64
 
-	printf	"sharp test = ",:$*,"%n"
-
 mclrmapscreen
 	sub	r0
 	miwt	r1,bitmap1+bitmapbase
@@ -1181,8 +1198,6 @@ mclrmapscreen
 	nop
 
 pepperscreensize	=	16*24*32
-
-	printf	"sharp test = ",:$*,"%n"
 
 mclrpepperscreen
 	sub	r0
@@ -1218,7 +1233,6 @@ mclrbitmaps2	; clear the first half of the bitmap, called from trans
 	lob
 	beq	.noclr
 	nop
-	printf	"sharp test = ",:$*,"%n"
 	sub	r0
 	miwt	r1,bitmap1
 	miwt	r12,gametranlen1/2
@@ -1238,7 +1252,6 @@ mclrbitmaps3	; clear the second half of the bitmap
 	lob
 	beq	.noclr
 	nop
-	printf	"sharp test = ",:$*,"%n"
 	sub	r0
 	miwt	r1,bitmap1+gametranlen1
 	miwt	r12,gametranlen2/2

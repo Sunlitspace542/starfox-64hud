@@ -1,13 +1,25 @@
-*****************************************************************
-*								                                *
-* OBJ.ASM							                            *
-*								                                *
-* 6502 3D SHAPE KERNAL						                    *
-*								                                *
-* by P. R. Warnes, Copyright 1990				                *
-*								                                *
-*****************************************************************
-
+;***************************************************************************
+;*                                                                         *
+;*                               Star Fox                                  *
+;*                              -----------                                *
+;*                                                                         *
+;*                           SuperNES version.                             *
+;*                                                                         *
+;*                                                                         *
+;*                           Argonaut Software.                            *
+;*                                                                         *
+;*_________________________________________________________________________*
+;*                                                                         *
+;*   File: OBJ.ASM                                                         *
+;*_________________________________________________________________________*
+;*                                                                         *
+;*  Descr: 6502 3D SHAPE KERNAL                                            *
+;*_________________________________________________________________________*
+;*                                                                         *
+;* Author:                                                                 *
+;*  by P. R. Warnes, Copyright 1990                                        *
+;*                                                                         *
+;***************************************************************************
 
 init3d2
 	php
@@ -17,14 +29,11 @@ init3d_l
 	ai8
 
 init3d1
-	lda	#$3a
-	sta	rand
-	lda	#$a7
-	sta	rand+1
-	lda	#$55
-	sta	rand+2
-	lda	#$7f
-	sta	rand+3
+
+;! Possible bug: In vanilla, RNG gets reset whenever 3D gfx are initialised (which is soon after the map is set up)
+	IFEQ	rngmode
+	setuprng	; Setup RNG seed
+	ENDC
 
 	stz	pauseflag
 	stz	expcnt
@@ -93,7 +102,6 @@ copychars_l
 	sta	count1
 .loopy
 	lda	debugchars,y
-;	sta.l	m_debugchars,x
 	inx
 	iny
 	iny
@@ -360,7 +368,7 @@ flipflag equ sign
 	IFEQ	1
 
 
-************************************************************8
+;************************************************************
 ; 32 bit Signed divide
 ; 32 bit divided by 16 bit giving 32 bit result
 ;
@@ -660,7 +668,7 @@ D32Done
 	ENDC
 
 
-******************************************************************8
+;******************************************************************
 
 
 

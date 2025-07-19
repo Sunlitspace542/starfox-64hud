@@ -5,7 +5,7 @@
 ;*                                                                         *
 ;*                           SuperNES version.                             *
 ;*                                                                         *
-;*                           Argonaut Software.      		               *
+;*                           Argonaut Software.                            *
 ;*_________________________________________________________________________*
 ;*                                                                         *
 ;*   File: ENDSEQ.ASM                                                      *
@@ -642,45 +642,6 @@ qsetit	decvram		0,0e000h/2,bgetestpcr,4*k,256
 	set_zdepthtable	normal
 	rts
 
-
-	ifeq		1
-
-#dmacgram (txt channel=chan0!!chan1!!chan2!!chan3!!chan4!!chan5!!chan6!!chan7, 
-    int addr>0<=255, txt source, int len) {
-
-	lda	#cgdata&$ff
-	sta	ch{channel}addrb
-	lda	#{addr}
-	sta	cgadd
-	ldx	#{source}&WM
-	stx	ch{channel}addra1tl
-	lda	#{source}>>16
-	sta	ch{channel}atbank
-	ldx	#{len}
-	stx	ch{channel}dataddrl
-	lda	#0
-	sta	ch{channel}params
-	lda	#{channel}<<1
-	sta	mdmaen
-
-}
-
-
-    dmacgram (chan0, addr=0, bgetestpac, len=512);
-    jmp qsetit
-    dmacgram (chan0, addr=0, bgetest0pac, len=512);
-qsetit
-    decvram (chan0, addr=0e000h/2, bgetestpcr, len=4*k, offset=256);
-    set_zdepthtable (normal);
-    set_col (0, 0);
-    set_3dpal (1);
-    set_depth (night);
-    set_zdepthtable (normal);
-    rts
-
-
-	endc
-
 ;-----------------------------------------------------------------------------
 prtdemotxt	php
 	a8i16
@@ -731,8 +692,6 @@ scrollinl	php
 	sta	bg1hofsreq
 	lda	#bg1yinit+bg1ymove
 	sta	bg1vofsreq
-;	lda	#bg2xinit+bg2xmove
-;	sta	bg2hofsreq
 	lda	#bg2yinit+bg2ymove
 	sta	bg2vofsreq
 	lda	#bg3xinit+bg3xmove
@@ -748,8 +707,6 @@ scrolloutr	php
 	sta	bg1hofsreq
 	lda	#bg1yinit
 	sta	bg1vofsreq
-;	lda	#bg2xinit
-;	sta	bg2hofsreq
 	lda	#bg2yinit
 	sta	bg2vofsreq
 	lda	#bg3xinit
@@ -765,8 +722,6 @@ scrollinr	php
 	sta	bg1hofsreq
 	lda	#bg1yinit+bg1ymove
 	sta	bg1vofsreq
-;	lda	#bg2xinit-bg2xmove
-;	sta	bg2hofsreq
 	lda	#bg2yinit+bg2ymove
 	sta	bg2vofsreq
 	lda	#bg3xinit-bg3xmove
@@ -999,18 +954,6 @@ boss31_ihan	q_start
 	q_set_text		boss31txt2
 	q_rept_strat		#230
 	q_end
-
-;boss31_ihan	q_start
-;	q_set_bg		a
-;	q_set_bg		a
-;	q_set_han		boss11_han
-;	q_set_cnt		#180
-;	q_set_viewdist		#1500
-;	q_set_viewhgt		#0
-;	q_init_text		boss31txt
-;	q_set_text		boss31txt2
-;	q_rept_strat		#200
-;	q_end
 
 boss32_ihan	q_start
 	q_set_bg		b
@@ -1688,7 +1631,7 @@ titleseq_l	php
 	IFNE	nointroseq ; If intro sequence disabled
 	a8i16
 
-	IFNE	msu
+	IFNE	msu_legacy
 	jsl CheckForMSU ; check for the MSU-1
 	ENDC
 
@@ -1703,6 +1646,10 @@ titleseq_l	php
 
 titleredo	a8i16
 	disable
+
+	IFNE	RUMBLE
+	s_end_rumble_table	; kill intro sequenced rumble if it wasn't already for some reason
+	ENDC
 
 	lda	#1
 	sta.l	oncewipe
@@ -1732,10 +1679,8 @@ titleredo	a8i16
 	a16
 	pla
 
-	IFEQ	contest
 	dec	a
 	beq	.endtitle
-	ENDC
 
 	pha
 	lda	gameframe
@@ -1745,7 +1690,9 @@ titleredo	a8i16
 	lda	cont0
 	bit	#key_start
 	beq	.lp
-
+	IFNE	RUMBLE
+	s_queue_rumble	4,4,6
+	ENDC
 	a16
 	pla
 	a8
@@ -1772,6 +1719,9 @@ titleredo	a8i16
 .lp3	jsl	setblack_l
 	jsl	transfer_l
 	a8
+	IFNE	friendmessagesinintro
+	jsl	friends_messages_l
+	ENDC
 	lda	#1+8
 	sta	bgmode
 	untilfaded .lp3
@@ -1787,21 +1737,16 @@ titleredo	a8i16
 intro_l
 	a8i16
 
-	IFNE	msu
+	IFNE	msu_legacy
 	jsl CheckForMSU ; check for the MSU-1
 	ENDC
 
 	bgm	init
-	
 	ldx	#0
 .ll	dex
 	bne	.ll
 
 	bgm	intro
-	
-	
-	
-
 	disable
 
 	lda	#intromap>>16
@@ -1832,6 +1777,9 @@ intro_l
 	ora	contl0
 	beq	.lp3
 .waitup
+	IFNE	RUMBLE
+	s_end_rumble_table
+	ENDC
 	lda	#-2
 	sta	fadedir
 	lda	#11
@@ -1844,210 +1792,10 @@ intro_l
 	bne	.finishlp
 	rtl
 
-
-	IFNE	CONTEST
-
-;-------------------------------------------------------------------
-; TIME OVER SEQUENCE
-
-timeover_l
-	a8i16
-	disable
-
-	lda	#timeovermap>>16
-	ldx	#timeovermap&$7fff
-	sta	mapbank
-	stx	mapptr
-	jsl	initgame_l
-	s_and_var		B,pshipflags3,#~psf3_enginesnd
-
-	jsl	setcharmapfox_l
-
-	lda	#0
-	sta.l	m_meters
-	sta	exitintro
-	sta	gameframe
-	lda	#1
-	sta.l	oncewipe
-
-	jsl	setblack_l
-	jsl	transfer_l
-
-	a8
-.waitup2
-	lda	trans_flag
-	bne	.waitup2
-
-;-----------------------------------------
-; print score in big letters
-	
-	ldx	#vsc_base2+32*$12+7
-	stx	y1
-
-	lda.l	numbuff
-	jsr	.printnum
-
-	lda.l	numbuff+1
-	jsr	.printnum
-
-	lda.l	numbuff+2
-	jsr	.printnum
-
-	lda.l	numbuff+3
-	jsr	.printnum
-
-	lda.l	numbuff+4
-	jsr	.printnum
-
-;-----------------------------------------
-
-	a16
-	stz	gameframe
-	a8
-
-.lp3
-	jsl	setblack_l
-	jsl	transfer_l
-	a16
-	lda	gameframe
-	cmp	#20*30
-	a8
-	bcc	.lp3
-
-	lda	cont0
-	ora	contl0
-	beq	.lp3
-
-	lda	#-2
-	sta	fadedir
-
-.fadedown
-	jsl	setblack_l
-	jsl	transfer_l
-	a8
-	lda	fadedir
-	bne	.fadedown
-	
-	jml	restart
-
-; a = num to print
-.printnum	shorta
-	i8
-	tax
-	lda.l	.nums,x
-	ai16
-	and	#255
-	ora	#1<<10
-	clc
-	adc	#scr_offset
-	sta	x1
-
-	lda	y1
-	tax
-	clc
-	adc	#3
-	sta	y1
-
-	ldy	#4
-.lp
-	stx	vmaddl
-
-	lda	x1
-	sta	vmdatal
-	inc	a
-	sta	vmdatal
-
-	txa
-	clc
-	adc	#32
-	tax
-
-	lda	x1
-	clc
-	adc	#16
-	sta	x1
-
-	dey
-	bne	.lp
-	a8
-	rts
-	
-
-
-.nums	db	$10,$12,$14,$16,$18,$1a,$1c,$1e,$50,$52
-
-
-
-
-
-;-------------------------------------------------------------------
-; TIMEUP SEQUENCE
-
-timeup_l
-	a8i16
-	lda	#-2
-	sta	fadedir
-
-	startbgm	$f0
-
-.untiloff
-	jsl	setblack_l
-	jsl	transfer_l
-	a8
-	lda	fadedir
-	bne	.untiloff
-
-timeupin
-	a8i16
-	disable
-
-	lda	#timeupmap>>16
-	ldx	#timeupmap&$7fff
-	sta	mapbank
-	stx	mapptr
-	jsl	initgame_l
-	s_and_var		B,pshipflags3,#~psf3_enginesnd
-
-	jsl	setcharmapfox_l
-
-	lda	#0
-	sta.l	m_meters
-	sta	exitintro
-	sta	gameframe
-	sta	gameframe+1
-	lda	#1
-	sta.l	oncewipe
-
-;-----------------------------------------
-
-.lp3	jsl	setblack_l
-	jsl	transfer_l
-	a16
-	lda	gameframe
-	cmp	#200
-	bne	.lp3
-
-	a8
-	lda	#-2
-	sta	fadedir
-.finishlp
-	jsl	setblack_l
-	jsl	transfer_l
-	a8
-	lda	fadedir
-	bne	.finishlp
-	
-	
-	jml	timeover_l
-
-
-	ENDC
-
-
 tit_istrat
 	s_start_strat
 	s_set_alvar	B,x,al_rotx,#-deg45+deg11+deg11+3-deg5
-	s_set_alvar	B,x,al_roty,#deg45+deg90	;+deg11
+	s_set_alvar	B,x,al_roty,#deg45+deg90
 	s_set_alvar	B,x,al_rotz,#0
 	s_set_strat	x,tit_strat
 tit_strat

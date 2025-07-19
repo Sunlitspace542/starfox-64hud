@@ -1,6 +1,21 @@
-;-------------------------------------------------------------
-; ALCS.INC
-;
+;***************************************************************************
+;*                                                                         *
+;*                               Star Fox                                  *
+;*                              -----------                                *
+;*                                                                         *
+;*                           SuperNES version.                             *
+;*                                                                         *
+;*                                                                         *
+;*                           Argonaut Software.                            *
+;*                                                                         *
+;*_________________________________________________________________________*
+;*                                                                         *
+;*   File: ALCS.INC                                                        *
+;*_________________________________________________________________________*
+;*                                                                         *
+;*  Descr: Definitions for memory allocations.                             *
+;*                                                                         *
+;***************************************************************************
 
 alcon	=	1
 
@@ -53,7 +68,7 @@ alcon	=	1
 	zalc	printpt,2
 	zalc	drawmap,2
 	zalc	showmap,2
-	zalc	drawsprptr,2
+;	zalc	drawsprptr,2	; unused zp i think
 	zalc	vmap1,2
 	zalc	vmap2,2
 	zalc	vcmap,2
@@ -281,11 +296,11 @@ xlen	=	22*1024+450
 	zalc	tr2x,1
 	zalc	highx,1
 	zalc	numpnts2,1
-	zalc	pat0ptr,2
-	zalc	pattern0,1
-	zalc	pattern1,1
+;	zalc	pat0ptr,2
+;	zalc	pattern0,1
+;	zalc	pattern1,1
 ;--------MSU1---------
-	IFNE	msu
+	IFNE	msu_legacy
     zalc    msu_017e,1 ; MSU1 zeropage variable ($7E017E)
     zalc    msu_017f,1 ; MSU1 zeropage variable ($7E017F)
 	ENDC
@@ -293,8 +308,11 @@ xlen	=	22*1024+450
 
 
 ; Vars kept between levels
+	IFEQ	rngmode-2
+	zalc	rand,2
+	ELSEIF
 	zalc	rand,4
-
+	ENDC
 ;
 ; Workspace Vars
 ;
@@ -445,69 +463,15 @@ xlen	=	22*1024+450
 	alc	gridz,1
 	alc	gridcol,1
 
-
-; emuvars
-
-
-
-
 ;Zero page variables
 	zalc	mariopc,2
 	zalc	marioBank,1
-;	zalc	nextins,1
-
 
 ;RAM variables
-
 	alc	sreg,2	;*2
 	alc	dreg,2	;*2
 	alc	oreg,2	;*2
 	alc	imbuf,2
-	
-	ifeq	realchip
-	alc	regs,0
-	alc	mr0,2
-	alc	mr1,2
-	alc	mr2,2
-	alc	mr3,2
-	alc	mr4,2
-	alc	mr5,2
-	alc	mr6,2
-	alc	mr7,2
-	alc	mr8,2
-	alc	mr9,2
-	alc	mr10,2
-	alc	mr11,2
-	alc	mr12,2
-	alc	mr13,2
-	alc	mr14,2
-	alc	mr15,2
-	alc	mflags,2
-	endif
-
-	ifne	realchip
-regs	equ	$3000
-mr0	equ	$3000
-mr1	equ	$3002	
-mr2	equ	$3004	
-mr3	equ	$3006	
-mr4	equ	$3008	
-mr5	equ	$300a	
-mr6	equ	$300c	
-mr7	equ	$300e	
-mr8	equ	$3010	
-mr9	equ	$3012	
-mr10	equ	$3014	
-mr11	equ	$3016	
-mr12	equ	$3018	
-mr13	equ	$301a	
-mr14	equ	$301c	
-mr15	equ	$301e	
-mflags	equ	$3030
-mcodebank	equ	$3034
-mscrbase	equ	$3038
-mio_mode	equ	$303a
-	endc
 
 	alc	mr14old,2
 	alc	getbuf,2
@@ -757,8 +721,17 @@ mio_mode	equ	$303a
 	ENDC
 	alc	open_text,2
 	alc	msupresent,1
+; strats
+	alc	targetx,2
+	alc	targety,2
+	alc	boostcnt,1
 
-
+	IFNE	RUMBLE
+; zeropage alcs for rumble
+	zalc	rumble_cmd,1	; command byte
+	zalc	rumble_time,1	; time (in frames, 0-255) to rumble
+	zalc	rumble_index,1	; index into rumble_table for sequenced rumbles (0-255)
+	ENDC
 
 ;---------------------------------------------------
 	alc	numshapes,2
@@ -768,7 +741,9 @@ mio_mode	equ	$303a
 	alc	palnum,2
 	alc	palcnt,2
 	alc	fadepal,1
-
+	IFNE	RUMBLE
+	alc	rumble_table,40	; cache for sequenced rumble commands (unfortunately it must be done this way)
+	ENDC
 ; stratrou
 
 	alc	objx,2

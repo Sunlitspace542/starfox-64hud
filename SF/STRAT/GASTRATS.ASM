@@ -3821,7 +3821,34 @@ exitopen_strat
 	s_end_strat
 
 
-
+;*****************************************************************************
+; 3D crosshair stolen from Star Fox EX.
+; Initialized in GSTRATS.ASM.
+xhair_Istrat
+	s_start_strat
+	s_clr_alsflag	y,invisible	; Quit being invisible
+	s_set_objtobeplayer	y	; Get player as object Y
+	s_copy_rots			x,y	; Copy player's rotation to xhair
+	s_copy_vecs		x,y	; Copy player's vectors to xhair
+	s_copy_alvar2var	W,y,targetx,al_worldz	; Get player's worldz
+	s_copy_alvar2var	W,x,targety,al_worldz	; Get xhair's worldz
+	a16
+	lda	targety	; compute xhair's distance from player (targety-targetx)
+	sec
+	sbc	targetx
+	cmp	#2000 ; If 2000 units away from player, die (this is what allows only 2 xhairs) ; sfex had this at 700
+	bpl	.die
+	a8
+	s_set_speed		x,#127	; set speed to max
+	s_gen_3dvecs		x,al_roty,al_rotx,al_vel,3	; generate xhair vectors, scale 3 ; sfex had this at 1
+	s_addgen_3dvecs		x,al_roty,al_rotx,al_vel,1	; additional vectors, scale 1
+	s_add_vecs2pos	x	; add vectors to xhair's pos
+	s_add_playerz	x	; add player's Z pos to xhair's
+	s_end_strat
+.die
+	a8
+	s_remove_obj	x	; Kill shape if too far away
+	s_end_strat
 
 
 

@@ -64,4 +64,5 @@
 	global	ITEM7_ISTRAT
 	global	flypillar_istrat
 	global	exitopensnd2_Istrat
+	global	xhair_Istrat
 

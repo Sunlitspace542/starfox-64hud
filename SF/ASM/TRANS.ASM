@@ -27,9 +27,6 @@
 
 	INCPUBLICS	EXT\trans.ext
 
-
-	printf	"aldead= ",:$aldead,"%n"
-
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
 ;-----------------------------------------------------------------------
@@ -213,16 +210,16 @@ stratsfrozen
 	sta	framecount
 	inc	frames
 	lda	framecount
-	cmp	#60		; per second
+	cmp	#consoleframerate	; SNES framerate
 	bcc	.noreset
 	lda	frames
 	sta	framesb
 	stz	frames
 	lda	framecount
 	sec
-	sbc	#60
+	sbc	#consoleframerate	; SNES framerate
 	sta	framecount
-.noreset	
+.noreset
 
 	ifne	mario_stats3d
 
@@ -249,7 +246,7 @@ stratsfrozen
 	printd	1,6
 
 	; MSU track debugging
-	IFNE	msu
+	IFNE	msu_legacy
 	lda	msu_017f ; current MSU track
 	printd	1,2
 	ENDC
@@ -609,20 +606,24 @@ dmahpos	ai8
 
 ;------------------------------------------------------------------------------
 calcmeters	a8i16
+	ifeq	shieldboostcolorbox
+	lda	shieldup	; send shieldup flag to mario chip
+	sta.l	m_shieldup	; note that we're in a8 mode so we're only storing to the lo byte
+	endc
 	ldx	pcboxobj_b
 	lda	al_HP,x
 	bpl	.ok
 	lda	#0
 .ok	sta.l	m_damage
 
-boost	lda.l	m_boostcnt
+boost	lda	boostcnt
 	beq	.end
 	lda.l	m_boostanim
 	dec	a
 	dec	a
 	bpl	.ok
 	lda	#0
-	sta.l	m_boostcnt
+	sta	boostcnt
 .ok	sta.l	m_boostanim
 	bra	.draw
 .end	lda.l	m_boostanim

@@ -55,7 +55,7 @@ msprintstr
 	cmode
 
 	lms	r1,[m_x1]
-	iwt	r0,#224-50+1
+	iwt	r0,#friendmsgrighttextclip+1
 	sub	r1
 	sms	[m_textrightclip],r0
 
@@ -97,7 +97,7 @@ mfprintstr
 	cmode
 
 	lms	r1,[m_x1]
-	iwt	r0,#224-50
+	iwt	r0,#friendmsgrighttextclip
 	sub	r1
 	sms	[m_textrightclip],r0
 
@@ -149,7 +149,7 @@ mprintstrin3
 	sms	[m_lastwidth],rwidthptr
 	sms	[m_lasttrans],rtransptr
 
-.wrap	call	mgetlinelen
+.wrap	mcall	mgetlinelen
 	nop
 
 	moves	rnumchars,rnumchars
@@ -359,7 +359,7 @@ mcalcperc
 	mult	r2
 	sub	r0
 	lms	r6,[m_y1]
-	call	mdivu3216
+	mcall	mdivu3216
 	nop
 	sms	[m_x1],r4
 	stop
@@ -369,7 +369,7 @@ mkrisdivu3115
 	sub	r0
 	lms	r4,[m_x1]
 	lms	r6,[m_y1]
-	call	mdivu3115
+	mcall	mdivu3115
 	nop
 	sms	[m_x1],r4
 	stop
@@ -481,10 +481,10 @@ mprtdec
 
 mprt2zeros ; Print 2 0s
 	sub	r0 ; Subtract from r0
-	call	mprtnum ; Print digit
+	mcall	mprtnum ; Print digit
 	nop ; No operation
 	sub	r0 ; Subtract from r0
-	call	mprtnum ; Print digit
+	mcall	mprtnum ; Print digit
 	nop ; Subtract from r0
 	stop ; Stop MARIO chip
 	nop ; No operation
@@ -574,7 +574,7 @@ mshowteammate2
 	lms	r1,[m_x1]
 	lms	r2,[m_y1]
 	iwt	r3,#40+4
-	iwt	r4,#8+4
+	iwt	r4,#4+4 ; was 8+4
 	mcall	mdrawbox
 	nop
 
@@ -590,7 +590,7 @@ mshowteammate2
 	beq	.dead
 	nop
 	ibt	r0,#2
-	iwt	r4,#8
+	iwt	r4,#4 ; was 8
 	mcall	mdrawsolidbox
 	nop
 

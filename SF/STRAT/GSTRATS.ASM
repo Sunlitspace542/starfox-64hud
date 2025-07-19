@@ -367,6 +367,53 @@ init_strats_l
 	sta.l	m_pfm
 
 ;----------------------------------------------------
+; PLAYER'S CROSSHAIR
+
+	; if player is dead, don't show xhair
+	lda	pshipflags2
+	and	#psf2_playerHP0
+	lbne	.dontshowxhair
+
+	; if crosshairon is off, don't show xhair
+	lda	crosshairon
+	lbeq	.dontshowxhair
+
+	; if in cockpit (1st person) view, always show xhair
+	lda	splayerflymode
+	cmp	#spfm_inside
+	beq	.showxhair
+
+	IFEQ xhairon
+	lbne	.dontshowxhair
+	ENDC
+
+	IFNE	xhairon
+	; if crosshairon flag bit set, show xhair
+	lda	pshipflags4
+	bit	#psf4_crosshairon
+	lbeq	.dontshowxhair
+	ENDC
+
+.showxhair
+	s_make_obj	#xhaircube,.doneshowxhair	; set shape
+	s_set_alsflag	y,invisible	; make invisible
+	s_sprite_obj	y,#0	; make it a software sprite
+	s_copy_pos	y,x	; Copy player's position to xhair
+	s_copy_rots	y,x	; Copy player's rotation to xhair
+	s_copy_vecs	y,x	; Copy player's vectors to xhair
+	phx
+	tyx
+	s_gen_3dvecs		x,al_roty,al_rotx,al_vel,2	; generate xhair vectors, scale 2
+	s_addgen_3dvecs		x,al_roty,al_rotx,al_vel,2	; additional vectors, scale 2
+	plx
+	s_add_vecs2pos	y	; add vectors to xhair's pos
+	s_set_strat	y,xhair_istrat	; set strategy
+
+
+.dontshowxhair
+.doneshowxhair
+
+;----------------------------------------------------
 	lda	pshipflags
 	and	#psf_nofire
 	bne	.choff
@@ -388,6 +435,7 @@ init_strats_l
 
 ;----------------------------------------------------
 ; view toggle.
+	s_jmp_varAND	B,pshipflags3,#psf3_noviewchange,.npst
 	s_jmp_varNE	W,viewdist,outdist,.npst
 	s_jmp_varNE	B,stayblack,#-1,.npst
 	s_jmp_varAND	B,pshipflags,#psf_noctrl,.npst
@@ -653,9 +701,6 @@ hard180YRNZR_Istrat
 	s_jmp			hard180YR_Istrat
 ;*****************************************************************************
 hard180YR_Istrat
-	printf	"albkls=",:$alblks,"%n"
-	printf	"Addr=",:$*,"%n"
-	printf	"dummyobj=",:$dummyobj,"%n"
 	s_start_strat
 	s_set_colltype	x,enemy1
 	s_set_alvar		B,x,al_roty,#deg180
@@ -2117,6 +2162,11 @@ removenuke_Istrat
 	s_jmp		remove_Istrat
 
 
+	IFNE	RUMBLE
+bombtable
+	db	$11,$11,$22,$33,$44,$55,$55,$55,$55,$55,$55,$55,$55,$55,$44,$33,$22,$11,$11,$19
+	ENDC
+
 nukeexp_Istrat
 	s_start_strat
 	s_set_alvar		W,x,al_sword1,#nukeRATE
@@ -2130,6 +2180,10 @@ nukeexp_Istrat
 	s_end_strat
 nukeexp_strat
 	s_start_strat
+
+	IFNE	RUMBLE
+	s_queue_rumble_table	bombtable	; sequenced rumble effects have priority
+	ENDC
 
 	a16
 	lda	al_sword1,x

@@ -85,6 +85,9 @@ contcancel	a8
 	a8
 	testjoypad	select
 	beq	.nosel
+	IFNE	RUMBLE
+	s_queue_rumble	2,2,4
+	ENDC
 	lda	c_type
 	inc	a
 	and	#3
@@ -97,19 +100,15 @@ contcancel	a8
 	lda	gameframe
 	cmp	#16
 	lbcc	.self
-	IFNE	CONTEST
-	cmp	#20*10
 	a8
-	bcs	.autoexit
-	ELSEIF
-	a8
-	ENDC
 	testjoypad	start
 	lbeq	.self
 .autoexit
+	IFNE	RUMBLE
+	s_queue_rumble	4,4,6
+	ENDC
 	trigse	$10
 conttraining
-	IFEQ	contest
 
 	a8
 	enable
@@ -122,6 +121,9 @@ conttraining
 
 	testjoypad	select
 	beq	.nosel
+	IFNE	RUMBLE
+	s_queue_rumble	2,2,4
+	ENDC
 	lda.l	contexit
 	eor	#1
 	sta.l	contexit
@@ -131,6 +133,9 @@ conttraining
 	beq	.noup
 	testjoypad	up
 	beq	.noup
+	IFNE	RUMBLE
+	s_queue_rumble	2,2,4
+	ENDC
 	lda	#0
 	sta.l	contexit
 	trigse	011h
@@ -139,6 +144,9 @@ conttraining
 	bne	.nodown
 	testjoypad	down
 	beq	.nodown
+	IFNE	RUMBLE
+	s_queue_rumble	2,2,4
+	ENDC
 	lda	#1
 	sta.l	contexit
 	trigse	011h
@@ -155,13 +163,10 @@ conttraining
 
 	testjoypad start
 	lbeq	.lp
-.xit
-	ELSEIF
-	a8
-	lda	#1
-	sta.l	contexit
+	IFNE	RUMBLE
+	s_queue_rumble	4,4,6
 	ENDC
-
+.xit
 	a8
 
 	trigse	$10
@@ -171,9 +176,7 @@ conttraining
 	sta	fadedir
 .lp2	jsl	setblack_l
 
-	IFEQ	contest
 	jsr	contsprites
-	ENDC
 
 	jsr	conttrans
 	a8
@@ -185,8 +188,15 @@ conttraining
 
 	jsl	initialise_l
 	a8i16
+	IFEQ	trainingmapredirect
 	lda	#trainingmap>>16
 	ldx	#trainingmap&$7fff
+	ELSEIF	;IFNE	trainingmapredirect
+	IFD		_ARGSFX
+	run	" lda #%$trainingredirectmap>>16"
+	run	" ldx #%$trainingredirectmap&$7fff"
+	ENDC
+	ENDC	;trainingmapredirect
 	sta	mapbank
 	stx	mapptr
 	jsl	initgame_l
@@ -214,6 +224,9 @@ conttraining
 	bne	.lp3
 .tstst	testjoypad start
 	beq	.lp3
+	IFNE	RUMBLE
+	s_queue_rumble	4,4,6
+	ENDC
 .fade
 	a8
 	startbgm $f1

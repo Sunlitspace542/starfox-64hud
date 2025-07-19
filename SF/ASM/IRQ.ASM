@@ -938,7 +938,7 @@ endseqbit2	i16
 	list	off
 	lsr	a
 	lsr	a
-	sta	mscrbase
+	sta	m_scbr
 	jsr	startmus
 	rtl
 
@@ -1065,7 +1065,7 @@ irqbit2	i16
 	lda	drawmap+1
 	lsr	a
 	lsr	a
-	sta	mscrbase
+	sta	m_scbr
 	IFEQ	PAL
 	jsr	startmus
 	rtl
@@ -1093,30 +1093,51 @@ irqbit3	lda	noirqbit3
 
 	lda	flashtunnelon
 	beq	.skip
+	IFEQ	rngmode-2
+	lda	rand
+	ELSEIF
 	jsr	irqrand
+	ENDC
 	cmp	#((20)*255)/100		;20% chance of a flash
 	bcs	.skip
 	dmacgram	0,0,redtunnel,64
 .skip
 	lda	flashbg
 	beq	.skipt
+	IFEQ	rngmode-2
+	lda	rand
+	ELSEIF
 	jsr	irqrand
+	ENDC
 	cmp	#((2)*255)/100		;2% chance of a flash
 	bcs	.skipt
 	dmacgram	0,5*16,thundercol,32
+	IFNE	RUMBLE
+	queue_rumble	4,4,3
+	ENDC
 .skipt
+	IFNE	shieldboostcolorbox
+;!! Unnecessary color writes to palette line 2.
+; These are the exact same as colors that are already
+; loaded into CGRAM in most level palettes,
+; and are used for the "colored boxes" that
+; are used in the shield/boost box translucency effect.
+; Removing this frees up line 2 of CGRAM for more background
+; color palettes, if shieldboostcolorbox is off.
 	lda	#2*16+4
 	sta	cgadd
 	lda	shieldup
 	beq	.nope
-	lda	#$e0
+	lda	#$e0 ; shield power-up meter color lo byte
 	sta	cgdata
-	lda	#$7e
+	lda	#$7e ; shield power-up meter color hi byte
 	sta	cgdata
 	bra	.conti
-.nope	lda	#$1f
+.nope
+	lda	#$1f
 	sta	cgdata
 	stz	cgdata
+	ENDC
 .conti
 
 	lda	bg3scrollflag
@@ -1567,7 +1588,7 @@ startmus	php
 	beq	.check
 	bra	.trig3
 .start	lda	bgm_music
-	IFNE	msu
+	IFNE	msu_legacy
 	jsr 	$7ED000 ; MSU-1 routine to determine song to play
 	ELSEIF
 	sta	apu_port0
@@ -1619,6 +1640,9 @@ startmus	php
 
 
 ;-----------------------------------------------------------------------
+	IFEQ	rngmode-2
+
+	ELSEIF
 irqrand	lda	rand
 	clc
 	sbc	rand+1
@@ -1630,7 +1654,7 @@ irqrand	lda	rand
 	sbc	rand
 	sta	rand
 	rts
-
+	ENDC
 ;-----------------------------------------------------------------------
 	shorta
 	longi
@@ -1724,7 +1748,7 @@ window_buffer	php
 	plp
 	rts
 
-
+	IFNE	mouseon
 ;****************************************************************
 ;*																*
 ;*		Super NES Mouse BIOS									*
@@ -1783,7 +1807,7 @@ window_buffer	php
 ;mouse_sb1	ds	1
 
 ;cursol_x	ds	1	; Cursor X position    
-;cursol_y	ds	1	; Cursor Y position    
+;cursol_y	ds	1	; Cursor Y position
 
 ;*******************************************************************
 ;*  ============================================================== *
@@ -2002,5 +2026,6 @@ speed_change
 ;
 	db	'END OF SNES MOUSE BIOS'	    			;do not delete
 ;	original: 'END OF MOUSE BIOS'
+	ENDC ;mouseon
 
 

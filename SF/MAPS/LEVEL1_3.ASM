@@ -1,14 +1,7 @@
-
+; 1-3 Space Armada
 level1_3
 	initlevel	1_3i,whitefadeout,0
 	mapjsr		cl_warpout
-
-	IFNE		CONTEST
-
-	INCMAP		event
-
-	ELSEIF
-	ENDC
 	
 
 ;-----------------------------------------------------------------------------
@@ -77,7 +70,7 @@ level1_3
 
 .fin
 
-	mapjsr	cl_ship1_3
+	mapjsr	cl_ship1_3 ; Clear type
 
 	mapend	
 

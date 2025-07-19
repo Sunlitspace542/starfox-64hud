@@ -330,6 +330,8 @@ textureaddrtab
 
 	defsprabs_hi	nintendo,0,0
 
+	sprbank	msprites4
+	defsprabs	xhair2,0,0
 
 texturexytab
 	dw	texturexy0&WM

@@ -3,25 +3,28 @@
 #########################
 
 # Assembler
-ASM=SASMX
-ASMFLAGS=-xsymbols.txt
+ASM=ARGSFXX
+# Set max error count, set heap for SASM, hide assembler title text, and export symbols for ARGSFX
+ASMFLAGS= -m30 -e__heap=14400 -e__notitle -z
 
 # Linker
 LINK=ARGLINK
-LOPTS=-b30 -h1024 -t7d
+LOPTS=-b30 -h1024 -t7d -z
 
 # ROM Extender
 EXTEND=EXTEND
 # Extended size in Mbits, byte to pad with
-EXTOPS= 16 ff
+EXTOPTS= 16 ff
 
 # Checksum Fixer
 CHECK=SFCHECK
 COPTS=-s -f
 
-# FXGFX Interleaver
-MERGE=MERGE
-MOPTS= /cgx
+# FXGfx Interleaver
+MERGE=CGX2FX
+
+# Macro to make a FXGfx BIN file
+MAKEBIN= $(MERGE) $** $@
 
 # Graphics Cruncher
 CRU=CRU
@@ -29,27 +32,32 @@ CRU=CRU
 # Font Converter
 FONT=FON
 
-#!! If you add/remove a cgx in these two lists, make sure to add/remove the corresponding file.
+# Argonaut .MAP File Decoder
+MAPDEC=MAPDEC
+
+# ALLCOLS palette stripper
+MC=MAKECOL
+
+#!! If you add/remove a cgx/scr in these two lists, make sure to add/remove the corresponding file.
 
 # Crunched tilesets
 CGXFILES= DATA\1-3-B.CCR DATA\2-3B.CCR DATA\3-4.CCR DATA\B.CCR DATA\CONT.CCR DATA\DOG.CCR \
  DATA\F-1.CCR DATA\FS-BG3.CCR DATA\MAP-G.CCR DATA\OBJ-2.CCR DATA\SPACE.CCR DATA\T-ST.CCR \
- DATA\TI.CCR DATA\1-4.CCR DATA\2-4.CCR DATA\AND.CCR DATA\C-M.CCR DATA\CP-G.CCR DATA\E-TEST.CCR \
- DATA\F-OBJ.CCR DATA\HOLE-A.CCR DATA\MAP.CCR DATA\OBJ-3.CCR DATA\ST-P.CCR DATA\TI-3-G.CCR DATA\2-2.CCR \
- DATA\3-2.CCR DATA\B-HOLE.CCR DATA\CONT-2-G.CCR DATA\CP.CCR DATA\E-TEST2.CCR DATA\FOX-G.CCR DATA\LSB.CCR \
- DATA\OBJ-1-G.CCR DATA\OBJ-4.CCR DATA\STARS.CCR DATA\TI-3-US.CCR DATA\2-3.CCR DATA\3-3.CCR DATA\B-M.CCR \
- DATA\CONT-2.CCR DATA\DEMO.CCR DATA\E.CCR DATA\FOX.CCR DATA\M.CCR DATA\OBJ-1.CCR DATA\SC.CCR DATA\T-SP.CCR \
- DATA\TI-3.CCR
+ DATA\1-4.CCR DATA\2-4.CCR DATA\AND.CCR DATA\C-M.CCR DATA\CP-P.CCR DATA\E-TEST.CCR \
+ DATA\F-OBJ.CCR DATA\HOLE-A.CCR DATA\MAP.CCR DATA\OBJ-3.CCR DATA\ST-P.CCR DATA\TI-3-G.CCR \
+ DATA\2-2.CCR DATA\3-2.CCR DATA\B-HOLE.CCR DATA\CONT-2-G.CCR DATA\CP.CCR DATA\E-TEST2.CCR \
+ DATA\FOX-G.CCR DATA\LSB.CCR DATA\OBJ-1-G.CCR DATA\OBJ-4.CCR DATA\OOPS.CCR DATA\STARS.CCR \
+ DATA\TI-3-US.CCR DATA\2-3.CCR DATA\3-3.CCR DATA\B-M.CCR DATA\CONT-2.CCR DATA\DEMO.CCR \
+ DATA\FOX.CCR DATA\M.CCR DATA\OBJ-1.CCR DATA\T-SP.CCR DATA\TI-3.CCR
 
 # Crunched tilemaps
 SCRFILES= DATA\1-3-B.PCR DATA\2-3.PCR DATA\3-2.PCR DATA\B-HOLE.PCR DATA\CONT.PCR DATA\DOG.PCR \
- DATA\F-1.PCR DATA\LAST.PCR DATA\SC.PCR DATA\T-SP.PCR DATA\TI-3-US.PCR DATA\1-3.PCR \
- DATA\2-3B.PCR DATA\3-3.PCR DATA\B.PCR DATA\CP-G.PCR DATA\E-TEST.PCR DATA\FOX.PCR \
- DATA\LSB.PCR DATA\ST-P.PCR DATA\T-SS.PCR DATA\TI-3.PCR DATA\1-4.PCR DATA\2-3H.PCR \
- DATA\3-4.PCR DATA\CONT-2-G.PCR DATA\CP.PCR DATA\E-TEST2.PCR DATA\FS-NI.PCR DATA\M.PCR \
- DATA\STARS.PCR DATA\T-ST.PCR DATA\TI.PCR DATA\2-2.PCR DATA\2-4.PCR DATA\AND.PCR \
- DATA\CONT-2.PCR DATA\DEMO.PCR DATA\E.PCR DATA\HOLE-A.PCR DATA\MAP.PCR DATA\T-F-S.PCR \
- DATA\TI-3-G.PCR
+ DATA\F-1.PCR DATA\LAST.PCR DATA\T-SP.PCR DATA\TI-3-US.PCR DATA\1-3.PCR DATA\2-3B.PCR \
+ DATA\3-3.PCR DATA\B.PCR DATA\CP-P.PCR DATA\E-TEST.PCR DATA\FOX.PCR DATA\LSB.PCR DATA\ST-P.PCR \
+ DATA\T-SS.PCR DATA\TI-3.PCR DATA\1-4.PCR DATA\2-3H.PCR DATA\3-4.PCR DATA\CONT-2-G.PCR \
+ DATA\CP.PCR DATA\E-TEST2.PCR DATA\FS-NI.PCR DATA\M.PCR DATA\OOPS.PCR DATA\STARS.PCR DATA\T-ST.PCR \
+ DATA\2-2.PCR DATA\2-4.PCR DATA\AND.PCR DATA\CONT-2.PCR DATA\DEMO.PCR DATA\HOLE-A.PCR DATA\MAP.PCR \
+ DATA\T-F-S.PCR DATA\TI-3-G.PCR
 
 #!! If you add/remove a font, make sure to add/remove the corresponding file.
 
@@ -64,7 +72,7 @@ ALLFILES= BANK\BANK0.SOB BANK\BANK1.SOB BANK\BANK2.SOB \
 
 # Recipe to assemble a .ASM file and create a linkable .SOB file
 .asm.sob:
-	@$(ASM) -sfastrom=$(fastrom) -sfast=$(fast) -scrosshon=$(crosshon) -ssf2mugs=$(sf2mugs) -m30 $(ASMFLAGS) $< -v$*.SOB
+	@$(ASM) -efast=$(fast) -exhairon=$(xhairon) -esf2mugs=$(sf2mugs) $(ASMFLAGS) $< -v$*.SOB
 
 # Recipes to crunch graphics
 .cgx.ccr:
@@ -75,32 +83,114 @@ ALLFILES= BANK\BANK0.SOB BANK\BANK1.SOB BANK\BANK2.SOB \
 
 # Recipe to convert BMP to FON
 .bmp.fon:
-    @$(FONT) $<
+	@$(FONT) $<
 
 # Everything that should be done when make is executed
-all: allcols msprites crunch fonts sf.sfc donebld
+all: setup make-allcols msprites crunch fonts sf.sfc donebld
 
-prep: allcols msprites crunch fonts
-rom: sf.sfc donebld
+setup:
+	@del BANK\*.SOB > NUL
+	@del BANK\*.MAP > NUL
 
 # Recipe to crunch palettes
-allcols:
-	@cd DATA\COL
-	@pc.bat
+# Initialize allcols.col
+init-allcols:
+	@cd DATA
+	@cd COL
+	@del col.tmp > NUL
+	@del col2.tmp > NUL
+	@del allcols.col > NUL
+	@copy NUL allcols.col > NUL
+
+# List of palette source files and how each should be handled
+# Both of these lists must match the order of SF/INC/KALCS.INC's list!!
+ALLCOLS_PALETTES= \
+ OOPS.COL \
+ BG2-A.COL \
+ BG2-B.COL \
+ BG2-C.COL \
+ BG2-D.COL \
+ BG2-E.COL \
+ BG2-F.COL \
+ BG2-G.COL \
+ T-M.COL \
+ T-M-2.COL \
+ T-M-3.COL \
+ T-M-4.COL \
+ B-M.COL \
+ LIGHT.COL \
+ SPACE.COL \
+ STARS.COL \
+ CP.COL \
+ CP-US.COL \
+ CP-USP.COL \
+ CP-P.COL \
+ HOLE.COL \
+ L.COL \
+ E-TEST0.COL \
+ E-TEST.COL \
+ OBJ-1.COL \
+ BG2-E-P.COL
+
+# Palettes to include in ALLCOLS
+# allcols.pac: $(ALLCOLS_PALETTES) # use this label instead to only rebuild ALLCOLS when a palette file change is detected
+allcols.pac:
+	@echo Building ALLCOLS...
+#	       filename startline endline
+	@$(MC) OOPS.COL 0 2
+	@$(MC) BG2-A.COL 0 7
+	@$(MC) BG2-B.COL 0 13
+	@$(MC) BG2-C.COL 0 7
+	@$(MC) BG2-D.COL 0 7
+	@$(MC) BG2-E.COL 0 9
+	@$(MC) BG2-F.COL 0 7
+	@$(MC) BG2-G.COL 0 7
+	@$(MC) T-M.COL 0 7
+	@$(MC) T-M-2.COL 0 7
+	@$(MC) T-M-3.COL 0 7
+	@$(MC) T-M-4.COL 0 7
+	@$(MC) B-M.COL 0 7
+	@$(MC) LIGHT.COL 0 7
+	@$(MC) SPACE.COL 0 7
+	@$(MC) STARS.COL 0 7
+	@$(MC) CP.COL 0 7
+	@$(MC) CP-US.COL 0 7
+	@$(MC) CP-USP.COL 0 7
+	@$(MC) CP-P.COL 0 7
+	@$(MC) HOLE.COL 0 7
+	@$(MC) L.COL 0 7
+	@$(MC) E-TEST0.COL 0 7
+	@$(MC) E-TEST.COL 0 7
+	@$(MC) OBJ-1.COL 8 13
+	@$(MC) BG2-E-P.COL 0 9
+
+# Final step: Crunch all palettes into allcols.pac
+	@$(CRU) allcols.col allcols.pac
+	@echo Palette crunching complete.
+
+make-allcols: init-allcols allcols.pac
 	@cd ..\..
 
+#!! If you add/remove/modify a cgx/bin in this list, make sure the corresponding files are present here.
+
 # FXGFX files to be interleaved
-msprites: tex_01.bin tex_23.bin tex_23_a.bin
+MSPRITES_BINS= \
+ MSPRITES\tex_01.bin MSPRITES\tex_23.bin MSPRITES\tex_23_a.bin MSPRITES\tex_45.bin
+
+msprites: $(MSPRITES_BINS)
 
 # MSPRITES .BIN recipes
-tex_01.bin:
-	@$(MERGE) MSPRITES\tex_0.CGX MSPRITES\tex_1.CGX MSPRITES\$@ $(MOPTS)
+MSPRITES\tex_01.bin: MSPRITES\tex_0.CGX MSPRITES\tex_1.CGX
+	@$(MAKEBIN)
 
-tex_23.bin:
-	@$(MERGE) MSPRITES\tex_2.CGX MSPRITES\tex_3.CGX MSPRITES\$@ $(MOPTS)
+MSPRITES\tex_23.bin: MSPRITES\tex_2.CGX MSPRITES\tex_3.CGX
+	@$(MAKEBIN)
 
-tex_23_a.bin:
-	@$(MERGE) MSPRITES\tex_2.CGX MSPRITES\tex_3_a.CGX MSPRITES\$@ $(MOPTS)
+MSPRITES\tex_23_a.bin: MSPRITES\tex_2.CGX MSPRITES\tex_3_a.CGX
+	@$(MAKEBIN)
+
+MSPRITES\tex_45.bin: MSPRITES\tex_4.CGX MSPRITES\tex_5.CGX
+	@$(MAKEBIN)
 
 # Crunch all compressible GFX
 crunch: $(CGXFILES) $(SCRFILES)
@@ -111,23 +201,28 @@ fonts: $(FONFILES)
 # The ROM Itself
 sf.sfc: $(ALLFILES)
 	@$(LINK) $(LOPTS) -o$@ @flist
-	@$(EXTEND) $@ $(EXTOPS)
+	@$(EXTEND) $@ $(EXTOPTS)
 	@$(CHECK) $(COPTS) $@
-	@echo Built ROM, fastrom = $(fastrom) fast = $(fast) crosshair = $(crosshon) sf2mugs = $(sf2mugs)
-	@del msgs.txt
-	@del BANK\*.SOB
 
 # Actions to perform when assembly is completed
 donebld:
+	@del msgs.txt
 	@del BANK\*.SOB
-	@copy sf.sfc ..\SF.SFC
+	@del BANK\*.MAP
+	@copy sf.sfc ..\SF.sfc
 	@del sf.sfc
-	@copy symbols.txt ..\symbols.txt
-	@del symbols.txt
+	@$(MAPDEC) SF.MAP SYMBOLS.TXT
+	@del SF.MAP
+	@copy SYMBOLS.TXT ..\SYMBOLS.TXT
+	@del SYMBOLS.TXT
+	@copy BANKS.CSV ..\BANKS.CSV
+	@del BANKS.CSV
 
 # Clean everything up
 clean:
 	@del BANK\*.SOB
+	@del BANK\*.MAP
+	@del *.MAP
 	@del MSPRITES\*.BIN
 	@del DATA\COL\ALLCOLS.COL
 	@del DATA\COL\*.PAC
@@ -135,8 +230,13 @@ clean:
 	@del DATA\*.CCR
 	@del DATA\*.PCR
 	@del msgs.txt
+	@del ..\sf.sfc
 	@del sf.sfc
-	@del symbols.txt
+	@del ..\build.log
+	@del ..\BANKS.CSV
+	@del BANKS.CSV
+	@del SYMBOLS.TXT
+	@del ..\SYMBOLS.TXT
 
 ## Banks to assemble
 

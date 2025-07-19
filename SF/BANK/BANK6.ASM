@@ -2,11 +2,12 @@
 	include	INC\strathdr.inc
 	include	EXT\gastrats.ext
 	include	EXT\pstrats.ext
+	include	EXT\strings.ext
 	include	EXT\paths.ext
 	include	EXT\pistrats.ext
 	include	EXT\pcstrats.ext
-	include	EXT\gb2strats.ext
-	include	EXT\ga2strats.ext
+	include	EXT\gb2strat.ext
+	include	EXT\ga2strat.ext
 	include	EXT\dstrats.ext
 	include	INC\shmacs.inc
 	include	EXT\windows.ext
@@ -20,7 +21,6 @@
 
 ;------------------------------------------------------------------
 	bank	6
-	incfile	ASM\blink.asm
 	incfile	STRAT\gcstrats.asm
 	incfile	STRAT\expstrat.asm
 
