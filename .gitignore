@@ -15,6 +15,12 @@
 *.zip
 *.rar
 
+#patches
+*.bps
+*.BPS
+*.ips
+*.IPS
+
 #backups
 *.bak
 *.BAK
