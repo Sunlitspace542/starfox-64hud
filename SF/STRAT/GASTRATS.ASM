@@ -3833,11 +3833,24 @@ xhair_Istrat
 	s_copy_alvar2var	W,y,targetx,al_worldz	; Get player's worldz
 	s_copy_alvar2var	W,x,targety,al_worldz	; Get xhair's worldz
 	a16
-	lda	targety	; compute xhair's distance from player (targety-targetx)
+	lda	targety	; compute xhair's X distance from player (targety-targetx)
 	sec
 	sbc	targetx
-	cmp	#2000 ; If 2000 units away from player, die (this is what allows only 2 xhairs) ; sfex had this at 700
+	cmp	#1500 ; If 1500 units away from player, die (this is what allows only 2 xhairs) ; sfex had this at 700
 	bpl	.die
+	cmp	#-1500
+	bmi	.die
+	a8
+	s_copy_alvar2var	W,y,targetx,al_worldx	; Get player's worldx
+	s_copy_alvar2var	W,x,targety,al_worldx	; Get xhair's worldx
+	a16
+	lda	targety	; compute xhair's Z distance from player (targety-targetx)
+	sec
+	sbc	targetx
+	cmp	#1500 ; If 1500 units away from player, die (this is what allows only 2 xhairs) ; sfex had this at 700
+	bpl	.die
+	cmp	#-1500
+	bmi	.die
 	a8
 	s_set_speed		x,#127	; set speed to max
 	s_gen_3dvecs		x,al_roty,al_rotx,al_vel,3	; generate xhair vectors, scale 3 ; sfex had this at 1
